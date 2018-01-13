@@ -1,5 +1,5 @@
 Cricket is a CMWX1ZZABZ-hosted asset tracker using the concurrent GNSS engine CAM M8Q and includes STBC08 battery charger, 8 MByte SPI Nor Flash for data logging, BMA280 accelerometer for motion detection and BME280 for environmental sensing.
 
-![Cricket]()
+![Cricket](https://user-images.githubusercontent.com/6698410/34909788-8f515fe0-f85c-11e7-8de5-30879457ddd1.jpg)
 
 Cricket will be for sale at Tindie in the Spring.
