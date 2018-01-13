@@ -25,9 +25,9 @@ void setup()
 
 void loop() 
 {
-  digitalWrite(myLed, LOW);  // toggle red led on
+  digitalWrite(myLed, LOW);  // toggle blue led on
   delay(100);                // wait 100 milliseconds
-  digitalWrite(myLed, HIGH); // toggle red led off
+  digitalWrite(myLed, HIGH); // toggle blue led off
   delay(1000);               // wait 1000 milliseconds
   
   VDDA = STM32L0.getVREF();
