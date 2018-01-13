@@ -28,7 +28,7 @@ void loop()
   digitalWrite(myLed, HIGH); // toggle red led on
   delay(100);                // wait 100 millisecond
   digitalWrite(myLed, LOW);  // toggle red led off
-  delay(1000);
+  delay(1000);               // wait 1000 milliseconds
   
   VDDA = STM32L0.getVREF();
   Temperature = STM32L0.getTemperature();
