@@ -17,7 +17,7 @@ void setup()
   Serial.println("Serial enabled!");
  
   pinMode(myLed, OUTPUT);
-  digitalWrite(myLed, HIGH); // start with leds off, since active LOW
+  digitalWrite(myLed, HIGH); // start with led off, since active LOW
 
   STM32L0.getUID(UID);
   Serial.print("STM32L0 MCU UID = 0x"); Serial.print(UID[0], HEX); Serial.print(UID[1], HEX); Serial.println(UID[2], HEX); 
