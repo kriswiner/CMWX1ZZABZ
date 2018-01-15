@@ -123,6 +123,10 @@ void setup() {
   // Configure led
   pinMode(myLed, OUTPUT);
   digitalWrite(myLed, LOW); // start with led on
+ 
+  pinMode(myBat, INPUT);
+  analogReadResolution(12);  // set ADC resolution to 12 bit
+//  analogReadEx(myBat, 5000); // set sample time for ADC 0 - 5000 nanoseconds
 
   Wire.begin(); // set master mode 
   Wire.setClock(400000); // I2C frequency at 400 kHz  
