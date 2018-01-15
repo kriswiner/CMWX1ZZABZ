@@ -7,14 +7,14 @@ const char *devEui = "0101010101010101";
 void setup( void )
 {
 /*
- - Asia     REGION_AS923
-- Australia REGION_AU915
-- Europe    REGION_EU868
-- India     REGION_IN865
-- Korea     REGION_KR920
-- US        REGION_US915 (64 + 8 channels)
+ - Asia     AS923
+- Australia AU915
+- Europe    EU868
+- India     IN865
+- Korea     KR920
+- US        US915 (64 + 8 channels)
 */
-    LoRaWAN.begin(REGION_US915); // for US, select appropriate region
+    LoRaWAN.begin(US915); // for US, select appropriate region
     LoRaWAN.setSubBand(2); // for TTN
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
