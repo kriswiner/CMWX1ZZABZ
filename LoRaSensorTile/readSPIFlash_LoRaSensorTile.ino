@@ -132,6 +132,7 @@ void setup(void)
     if(Seconds < 10) {Serial.print("0"); Serial.print(Seconds);} else Serial.print(Seconds); Serial.print(",");      
     Serial.print(pressure, 2); Serial.print(","); Serial.print(temperature_C, 2); Serial.print(",");Serial.print(temperature_F, 2); Serial.print(",");
     Serial.print(altitude, 2); Serial.print(","); Serial.print(humidity, 1); Serial.print(","); 
+    Serial.print(VBAT, 2); Serial.print(",");
     Serial.print((float)RGBWData[0]/96.0f, 2); Serial.print(",");
     Serial.print((float)RGBWData[1]/74.0f, 2); Serial.print(",");
     Serial.print((float)RGBWData[2]/56.0f, 2); Serial.print(",");
