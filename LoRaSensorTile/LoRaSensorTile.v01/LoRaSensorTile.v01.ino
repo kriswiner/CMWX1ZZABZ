@@ -374,7 +374,7 @@ void loop() {
       flashPage[sector_number*36 + 22] = Day;
       flashPage[sector_number*36 + 23] = Month;
       flashPage[sector_number*36 + 24] = Year;
-      flashPage[sector_number*36 + 25] = (rawVbat * 0xFF00) >> 8;
+      flashPage[sector_number*36 + 25] = (rawVbat & 0xFF00) >> 8;
       flashPage[sector_number*36 + 26] = (rawVbat & 0x00FF);
       flashPage[sector_number*36 + 27] = (RGBWData[0] & 0xFF00) >> 8;
       flashPage[sector_number*36 + 28] = (RGBWData[0] & 0x00FF);
