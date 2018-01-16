@@ -1,28 +1,36 @@
 #include "LoRaWAN.h"
 
+#define myLed 13 // red led
+
 const char *appEui = "70B3D57ED00093FB";
-const char *appKey = "D3FC12149485EA7B9A4D8F5B6484830E";
-const char *devEui = "0101010101010101";
+const char *appKey = "6E47CC3C9B1F7F155600EE8A4FEEAFA3";
+const char *devEui = "4473632393936313"; 
 
 void setup( void )
 {
+  pinMode(myLed, OUTPUT);
+  digitalWrite(myLed, LOW);
+  
 /*
- - Asia     AS923
-- Australia AU915
-- Europe    EU868
-- India     IN865
-- Korea     KR920
-- US        US915 (64 + 8 channels)
+ - Asia     REGION_AS923
+- Australia REGION_AU915
+- Europe    REGION_EU868
+- India     REGION_IN865
+- Korea     REGION_KR920
+- US        REGION_US915 (64 + 8 channels)
 */
-    LoRaWAN.begin(US915); // for US, select appropriate region
-    LoRaWAN.setSubBand(2); // for TTN
+    LoRaWAN.begin(US915);
+    LoRaWAN.setAdrEnable(false);
+    LoRaWAN.setDataRate(1);
+    LoRaWAN.setTxPower(10);
+    LoRaWAN.setSubBand(2); // for TT 
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
 }
 
 void loop( void )
 {
-    delay(10000);
+    delay(60000);
 
     if (LoRaWAN.connected())
     {
@@ -33,4 +41,6 @@ void loop( void )
         LoRaWAN.write(0xde);
         LoRaWAN.endPacket();
     }
+
+    digitalWrite(myLed, HIGH); delay(10); digitalWrite(myLed, LOW);
 }
