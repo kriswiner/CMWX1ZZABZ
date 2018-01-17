@@ -126,7 +126,6 @@ void setup() {
  
   pinMode(myBat, INPUT);
   analogReadResolution(12);  // set ADC resolution to 12 bit
-//  analogReadEx(myBat, 5000); // set sample time for ADC 0 - 5000 nanoseconds
 
   Wire.begin(); // set master mode 
   Wire.setClock(400000); // I2C frequency at 400 kHz  
@@ -340,7 +339,7 @@ void loop() {
     Serial.print(Month); Serial.print("/"); Serial.print(Day); Serial.print("/"); Serial.println(Year);
     Serial.println(" ");
 
-    rawVbat = analogRead(myBat);
+    rawVbat = analogReadEx(myBat, 40000); // sample integration time 40 milliseconds
     Serial.print("rawVbat = "); Serial.println(rawVbat); 
     VBAT = (1270.0f/1000.0f) * 3.30f * ((float)rawVbat)/4095.0f;
     Serial.print("VBAT = "); Serial.println(VBAT, 2); 
