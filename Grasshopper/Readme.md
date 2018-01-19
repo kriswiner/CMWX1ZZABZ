@@ -2,7 +2,7 @@
 
 ![Grasshopper](https://cdn.tindiemedia.com/images/resize/oKs_mUNCiLRURJTBA7-Ze4fthKk=/full-fit-in/2400x1600/smart/32456/products/2018-01-13T17%3A24%3A25.696Z-2017-07-12T23-06-47.405Z-Grasshopper.top.jpg)
 
-Grasshopper power consumption is proportional to the CPU clock speed chosen and just 2.0 uA in stop mode. That's ultra-low power!
+Grasshopper power consumption is proportional to the CPU clock speed chosen and just 2 uA in stop mode. That's ultra-low power!
 
 ![GrasshopperPowerUsage](https://cdn.hackaday.io/images/9386191516388081021.JPG)
 
