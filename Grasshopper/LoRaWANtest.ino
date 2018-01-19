@@ -12,12 +12,12 @@ void setup( void )
   digitalWrite(myLed, LOW);
   
 /*
- - Asia     REGION_AS923
-- Australia REGION_AU915
-- Europe    REGION_EU868
-- India     REGION_IN865
-- Korea     REGION_KR920
-- US        REGION_US915 (64 + 8 channels)
+ - Asia      AS923
+- Australia  AU915
+- Europe     EU868
+- India      IN865
+- Korea      KR920
+- US         US915 (64 + 8 channels)
 */
     LoRaWAN.begin(US915);
     LoRaWAN.setAdrEnable(false);
