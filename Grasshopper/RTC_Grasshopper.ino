@@ -60,10 +60,10 @@ void setup()
 void loop() 
 {
 
-//  if(alarmFlag)  { // update RTC output (serial display) whenever the RTC alarm condition is achieved
-//     alarmFlag = false;
+  if(alarmFlag)  { // update RTC output (serial display) whenever the RTC alarm condition is achieved
+     alarmFlag = false;
   
-  VDDA = STM32L0.getVREF();
+  VDDA = STM32L0.getVDDA();
   Temperature = STM32L0.getTemperature();
 
   Serial.print("VDDA = "); Serial.println(VDDA, 2); 
@@ -86,10 +86,9 @@ void loop()
   Serial.print(Month); Serial.print("/"); Serial.print(Day); Serial.print("/"); Serial.println(Year);
   Serial.println(" ");
     
-  digitalWrite(myLed, HIGH); delay(100); digitalWrite(myLed, LOW);
-  delay(900);
-//  STM32L0.stop();
-//  }
+  digitalWrite(myLed, HIGH); delay(10); digitalWrite(myLed, LOW);
+   
+  }
 }
 
  void alarmMatch()
