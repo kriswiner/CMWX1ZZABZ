@@ -12,45 +12,74 @@
 
     This example code is in the public domain.
 */
-#include <Arduino.h>
 #include <STM32L0.h>
 #include "LoRaWAN.h"
+#include "TimerMillis.h"
 #include "GNSS.h"
 #include <RTC.h>
 #include "BMA280.h"
 #include "BME280.h"
-#include <SPI.h>
 #include "SPIFlash.h"
 
+// Cricket Asset Tracker cricketnode1
 const char *appEui = "70B3D57ED000964D";
 const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
 const char *devEui = "9473730323239372";
+
+// Barry's location device
+//const char *appEui = "70B3D57ED0009B8D";
+//const char *appKey = "3C6070B351DE402FF646355C3C33DF4C";
+//const char *devEui = "0087E88E3AFF5D77";
 
 // Cricket pin assignments
 #define myLed   10 // blue led 
 
 uint8_t LoRaData[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+TimerMillis LoRaTimer;
+
+GNSSLocation myLocation;
+GNSSSatellites mySatellites;
+
+TimerMillis GNSSTimerWakeup;
+
 uint32_t UID[3] = {0, 0, 0}; 
 
 bool SerialDebug = true;
 
 // CAM M8Q GNSS configuration
 #define pps      4 // 1 Hz fix pulse
-#define CAMM8Qen 5 // enable CAM M8Q power
 
 uint16_t Hour = 0, Minute = 0, Second = 0, Millisec, Year = 0, Month = 0, Day = 0, Alt = 0;
 uint16_t hour = 0, minute = 0, second = 0, year = 0, month = 0, day = 0, millisec;
-bool ppsFlag = false, firstSync = false, alarmFlag = false;
+bool ppsFlag = false, firstSync = false, alarmFlag = true;
 uint16_t count = 0, fixType = 0, fixQuality, latBytes[4], longBytes[4], tempBytes[4], pressBytes[4];
-int32_t latOut;
+int32_t latOut, longOut;
 
 float Temperature, Long, Lat;
 
+  static const char *fixTypeString[] = {
+      "NONE",
+      "TIME",
+      "2D",
+      "3D",
+  };
 
-// Battery voltage monitor definitions
-uint16_t rawBat = 0;
-float VDDA, VBAT, STM32L0Temp;
-#define myBat   A1 // 270K/1000K voltage divider on A1 ADC
+  static const char *fixQualityString[] = {
+      "",
+      "",
+      "/DIFFERENTIAL",
+      "/PRECISE",
+      "/RTK_FIXED",
+      "/RTK_FLOAT",
+      "/ESTIMATED",
+      "/MANUAL",
+      "/SIMULATION",
+  };
+
+
+// battery voltage monitor definitions
+float VDDA, VBAT, VBUS, STM32L0Temp;
 
 
 // BME280 definitions
@@ -98,7 +127,7 @@ BMA280 BMA280(BMA280_intPin1, BMA280_intPin2); // instantiate BMA280 class
 
 
 // SPI Flash: 64 MBit (8 MByte) SPI Flash 32,768, 256-byte pages
-#define csPin 21 // SPI Flash chip select pin
+#define csPin 25 // SPI Flash chip select pin
 
 uint16_t page_number = 0;     // set the page number for flash page write
 uint8_t  sector_number = 0;   // set the sector number for sector write
@@ -119,14 +148,6 @@ void setup()
   pinMode(myLed, OUTPUT);
   digitalWrite(myLed, HIGH);  // start with blue led off, since active LOW
 
-  pinMode(CAMM8Qen, OUTPUT);
-  digitalWrite(CAMM8Qen, HIGH); // turn on CAM M8Q
-  delay(1000);
-
-  // Voltage divider 270K/1000K to monitor LiPo battery voltage
-  pinMode(myBat, INPUT);
-  analogReadResolution(12); // take advantage of 12-bit ADCs
-
   Wire.begin(); // set master mode on default pins 14/15
   Wire.setClock(400000); // I2C frequency at 400 kHz  
   delay(1000);
@@ -137,21 +158,26 @@ void setup()
   pinMode(pps, INPUT); // select pps as input from CAM M8Q
 
   GNSS.begin(Serial1, GNSS.MODE_UBLOX, GNSS.RATE_1HZ); // Start GNSS
-  while (!GNSS.ready()) { } // wait for begin to complete
+  while (GNSS.busy()) { } // wait for begin to complete
 
-  GNSS.setConstellation(GNSS.CONSTELLATION_GPS); // choose satellites
-  while (!GNSS.ready()) { } // wait for begin to complete
+  GNSS.setConstellation(GNSS.CONSTELLATION_GPS_AND_GLONASS); // choose satellites
+  while (GNSS.busy()) { } // wait for begin to complete
 
-  GNSS.setSBAS(true); // choose satellites
-  while (!GNSS.ready()) { } // wait for begin to complete
+//  GNSS.setSBAS(true); // choose satellites
+//  while (GNSS.busy()) { } // wait for begin to complete
 
 //  GNSS.setPeriodic(10, 60, true);  // set periodic wake and sleep mode
-//  while (!GNSS.ready()) { } // wait for begin to complete
+//  while (GNSS.busy()) { } // wait for begin to complete
  
-  GNSS.setExternal(true); // use active antenna? true = yes, false = no
+  GNSS.setAntenna(GNSS.ANTENNA_EXTERNAL); // GNSS.ANTENNA_INTERNAL or GNSS.ANTENNA_EXTERNAL
+
+
+  pinMode(csPin, OUTPUT);
+  digitalWrite(csPin, HIGH);
   
   // check SPI Flash ID
-  SPIFlash.SPIFlashinit();
+  SPIFlash.init();
+  SPIFlash.powerUp();
   SPIFlash.getChipID();
 
   // Set the RTC time
@@ -164,6 +190,18 @@ void setup()
   RTC.setDay(day);
   RTC.setMonth(month);
   RTC.setYear(year);
+
+  VDDA = STM32L0.getVDDA();
+  VBUS = STM32L0.getVBUS();
+  VBAT = STM32L0.getVBAT();
+  STM32L0Temp = STM32L0.getTemperature();
+  
+  // Internal STM32L0 functions
+  Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
+  Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
+  if(VBUS ==  1)  Serial.println("USB Connected!"); 
+  Serial.print("STM32L0 MCU Temperature = "); Serial.println(STM32L0Temp, 2);
+  Serial.println(" ");
   
 
   // Read the BMS280 Chip ID register, this is a good test of communication
@@ -184,6 +222,8 @@ void setup()
    Serial.println("BMA280 + BME280 are online..."); Serial.println(" ");
    
   aRes = BMA280.getAres(Ascale);                                     // get sensor resolutions, only need to do this once
+  BMA280.resetBMA280();                                              // software reset before initialization
+  delay(100);      
   BMA280.selfTestBMA280();                                           // perform sensor self test
   BMA280.resetBMA280();                                              // software reset before initialization
   delay(1000);                                                       // give some time to read the screen
@@ -195,7 +235,7 @@ void setup()
   delay(100);
 
   BME280.BME280Init(Posr, Hosr, Tosr, Mode, IIRFilter, SBy);         // Initialize BME280 altimeter
-
+  BME280.BME280forced();                                             // get initial data sample, then go back to sleep
   }
   else 
   {
@@ -203,9 +243,10 @@ void setup()
   if(d != 0x60) Serial.println(" BME280 not functioning!");     
   }
 
-
-  // set alarm to update the RTC every second
-  RTC.enableAlarm(RTC.MATCH_ANY); // alarm once a second
+   // set alarm to update the RTC periodically
+//  RTC.setAlarmTime(0, 0, 0);
+//  RTC.enableAlarm(RTC.MATCH_SS);  // alarm once per minute
+    RTC.enableAlarm(RTC.MATCH_ANY); // alarm once a second
 
   RTC.attachInterrupt(alarmMatch);
 
@@ -225,13 +266,16 @@ void setup()
     - US         US915 (64 + 8 channels)
    */
     LoRaWAN.begin(US915);
-    LoRaWAN.setAdrEnable(true);
+    LoRaWAN.setADR(false);
     LoRaWAN.setDataRate(1);
     LoRaWAN.setTxPower(10);
     LoRaWAN.setSubBand(2); // for TT 
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
-    
+
+    LoRaTimer.start(callbackLoRaTx, 60000, 300000);      //  5 minute period, delayed 1 minute
+    GNSSTimerWakeup.start(callbackWakeup, 0, 180000);    // every three minutes, no delay
+     
     /* end of setup */
 
 }
@@ -240,7 +284,7 @@ void loop()
 {
     // BMA280 acceleration
     if(newBMA280Data == true) {  // On interrupt, read data
-     newBMA280Data = false;  // reset newData flag
+       newBMA280Data = false;  // reset newData flag
 
      BMA280.readBMA280AccelData(accelCount); // get 14-bit signed accel data
      
@@ -281,79 +325,41 @@ void loop()
 
 
     /*GNSS*/
-//    if (GNSS.available()) // check if new GNSS data is available
-    if (ppsFlag == true)
-    {
-     ppsFlag = false;
-     delay(50); // delay a bit to allow GNSS data to become available   {
+  if (GNSS.location(myLocation))
+  {
+  Serial.print("LOCATION: ");
+  Serial.print(fixTypeString[myLocation.fixType()]);
 
-     GNSSLocation myLocation = GNSS.read(); // read available GNSS data
-
-    if (myLocation) // if there is a fix
-    {
-      Lat  = myLocation.latitude();
-      Long = myLocation.longitude();
-      Alt  = myLocation.altitude();
-      Serial.print("latitude = ");
-      Serial.print(Lat, 7);
-      Serial.print(", longitude = ");
-      Serial.print(Long, 7);
-      Serial.print(", altitude = ");
-      Serial.print(Alt, 1);
-      Serial.print(", satellites = ");
-      Serial.print(myLocation.satellites());
-      Serial.print(", pdop = ");
-      Serial.print(myLocation.pdop());
-      Serial.print(", fixType = ");
-      fixType = myLocation.fixType();
-      if (fixType == 0) Serial.print("none");
-      if (fixType == 1) Serial.print("time");
-      if (fixType == 2) Serial.print("2D");
-      if (fixType == 3) Serial.print("3D");
-      Serial.print(", fixQuality = ");
-      fixQuality = myLocation.fixQuality();
-      if (fixQuality == 0) Serial.print("none");
-      if (fixQuality == 1) Serial.print("auto");
-      if (fixQuality == 2) Serial.print("diff");
-      if (fixQuality == 3) Serial.print("prec");
-      if (fixQuality == 4) Serial.print("rtk_fixed");
-      if (fixQuality == 5) Serial.print("rtk_float");
-      if (fixQuality == 6) Serial.print("est");
-      if (fixQuality == 7) Serial.print("man");
-      if (fixQuality == 8) Serial.print("sim");
-      Serial.println();
-
-      Hour   = myLocation.hour();
-      Minute = myLocation.minute();
-      Second = myLocation.second();
-      Millisec = myLocation.millis();
-      Serial.print("GNSS Time = ");
-      if (Hour < 10)   {
-        Serial.print("0");
-        Serial.print(Hour);
-      } else Serial.print(Hour);
-      Serial.print(":");
-      if (Minute < 10) {
-        Serial.print("0");
-        Serial.print(Minute);
-      } else Serial.print(Minute);
-      Serial.print(":");
-      if (Second < 10) {
-        Serial.print("0");
-        Serial.print(Second);
-      } else Serial.print(Second);
-      Serial.print(":");
-      if (Millisec < 10) {
-        Serial.print("0");
-        Serial.println(Millisec);
-      } else Serial.println(Millisec);
-
+  if (myLocation.fixType() != GNSSLocation::TYPE_NONE)
+  {
+      Hour   = myLocation.hours();
+      Minute = myLocation.minutes();
+      Second = myLocation.seconds();
       Year = myLocation.year();
       Month = myLocation.month();
       Day = myLocation.day();
-      Serial.print("GNSS Date = ");
-      Serial.print(Year); Serial.print(":"); Serial.print(Month); Serial.print(":"); Serial.println(Day);
-      Serial.println();
+      
+      Serial.print(fixQualityString[myLocation.fixQuality()]);
+      Serial.print(" ");
+      Serial.print(myLocation.year());
+      Serial.print("/");
+      Serial.print(myLocation.month());
+      Serial.print("/");
+      Serial.print(myLocation.day());
+      Serial.print(" ");
+      if (myLocation.hours() <= 9) {Serial.print("0");}
+      Serial.print(myLocation.hours());
+      Serial.print(":");
+      if (myLocation.minutes() <= 9) {Serial.print("0");}
+      Serial.print(myLocation.minutes());
+      Serial.print(":");
+      if (myLocation.seconds() <= 9) {Serial.print("0");}
+      Serial.print(myLocation.seconds());
+      Serial.print(".");
+      if (myLocation.millis() <= 9) {Serial.print("0");}
+      if (myLocation.millis() <= 99) {Serial.print("0");}
+      Serial.print(myLocation.millis());
+
 
       // Test if the RTC has been synced after GNSS time available
       if (firstSync == false)
@@ -362,15 +368,177 @@ void loop()
         syncRTC();  // just need to sync once
       }
 
-    }
-  } /* end of GNSS interrupt handling */
+
+      if (myLocation.fixType() != GNSSLocation::TYPE_TIME)
+      {
+    Lat = myLocation.latitude();
+    Long = myLocation.longitude();
+    Serial.print(" LLA=");
+    Serial.print(Lat, 7);
+    Serial.print(",");
+    Serial.print(Long, 7);
+    Serial.print(",");
+    Serial.print(myLocation.altitude(), 3);
+    Serial.print(" EPE=");
+    Serial.print(myLocation.ehpe(), 3);
+    Serial.print(",");
+    Serial.print(myLocation.evpe(), 3);
+    Serial.print(" SATELLITES=");
+    Serial.print(myLocation.satellites());
+    Serial.print(" DOP=");
+    Serial.print(myLocation.hdop(), 2);
+    Serial.print(",");
+    Serial.print(myLocation.vdop(), 2);
+    Serial.println();
+    
+         if(myLocation.fixType() != GNSSLocation::TYPE_2D) {
+          Serial.println("GNSS go to sleep!");
+          GNSS.sleep(); // once we have a 3D location fix put CAM M8Q to sleep
+         }
+
+      }
+
+  } 
+
+  Serial.println();
+
+  } /* end of GNSS Location handling */
+
+    if (GNSS.satellites(mySatellites))
+    {
+
+    Serial.print("SATELLITES: ");
+    Serial.print(mySatellites.count());
   
+    Serial.println();
+
+    for (unsigned int index = 0; index < mySatellites.count(); index++)
+    {
+  unsigned int svid = mySatellites.svid(index);
+
+  if ((svid >= 1) && (svid <= 32))
+  {
+      Serial.print("    ");
+
+      if (svid <= 9)
+      {
+    Serial.print("  G");
+    Serial.print(svid);
+      }
+      else
+      {
+    Serial.print(" G");
+    Serial.print(svid);
+      }
+  }
+  else if ((svid >= 65) && (svid <= 96))
+  {
+      Serial.print("    ");
+
+      if ((svid - 64) <= 9)
+      {
+    Serial.print("  R");
+    Serial.print(svid -64);
+      }
+      else
+      {
+    Serial.print(" R");
+    Serial.print(svid -64);
+      }
+  }
+  else if ((svid >= 120) && (svid <= 158))
+  {
+      Serial.print("    ");
+      Serial.print("S");
+      Serial.print(svid);
+  }
+  else if ((svid >= 173) && (svid <= 182))
+  {
+      Serial.print("    ");
+      Serial.print("  I");
+      Serial.print(svid -172);
+  }
+  else if ((svid >= 193) && (svid <= 197))
+  {
+      Serial.print("    ");
+      Serial.print("  Q");
+      Serial.print(svid -192);
+  }
+  else if ((svid >= 211) && (svid <= 246))
+  {
+      Serial.print("    ");
+
+      if ((svid - 210) <= 9)
+      {
+    Serial.print("  E");
+    Serial.print(svid -210);
+      }
+      else
+      {
+    Serial.print(" E");
+    Serial.print(svid -210);
+      }
+  }
+  else if (svid == 255)
+  {
+      Serial.print("    ");
+      Serial.print("R???");
+  }
+  else
+  {
+      continue;
+  }
+
+  Serial.print(": SNR=");
+  Serial.print(mySatellites.snr(index));
+  Serial.print(", ELEVATION=");
+  Serial.print(mySatellites.elevation(index));
+  Serial.print(", AZIMUTH=");
+  Serial.print(mySatellites.azimuth(index));
+
+  if (mySatellites.unhealthy(index)) {
+      Serial.print(", UNHEALTHY");
+  }
+
+  if (mySatellites.almanac(index)) {
+      Serial.print(", ALMANAC");
+  }
+
+  if (mySatellites.ephemeris(index)) {
+      Serial.print(", EPHEMERIS");
+  }
+
+  if (mySatellites.autonomous(index)) {
+      Serial.print(", AUTONOMOUS");
+  }
+
+  if (mySatellites.correction(index)) {
+      Serial.print(", CORRECTION");
+  }
+
+  if (mySatellites.acquired(index)) {
+      Serial.print(", ACQUIRED");
+  }
+
+  if (mySatellites.locked(index)) {
+      Serial.print(", LOCKED");
+  }
+
+  if (mySatellites.navigating(index)) {
+      Serial.print(", NAVIGATING");
+  }
+
+  Serial.println();
+    }
+    
+} /* end of GNSS Satellites handling
+
+
 
   /*RTC*/
   if (alarmFlag) { // update RTC output whenever there is a GNSS pulse
     alarmFlag = false;
-    count++;
-
+    
     if(SerialDebug) {
     Serial.print("ax = ");  Serial.print((int)1000*ax);  
     Serial.print(" ay = "); Serial.print((int)1000*ay); 
@@ -392,7 +560,7 @@ void loop()
      
     rawPress =  BME280.readBME280Pressure();
     compPress = BME280.BME280_compensate_P(rawPress);
-    pressure = (float) compPress/25600.f; // Pressure in mbar
+    pressure = (float) compPress/25600.0f; // Pressure in mbar
     altitude = 145366.45f*(1.0f - powf((pressure/1013.25f), 0.190284f));   
    
     rawHumidity =  BME280.readBME280Humidity();
@@ -426,20 +594,11 @@ void loop()
     second = RTC.getSeconds();
 
     Serial.print("RTC Time = ");
-    if (hour < 10)   { 
-      Serial.print("0");
-      Serial.print(hour);
-    } else Serial.print(hour);
+    if (hour < 10)   {Serial.print("0");Serial.print(hour); } else Serial.print(hour);
     Serial.print(":");
-    if (minute < 10) {
-      Serial.print("0");
-      Serial.print(minute);
-    } else Serial.print(minute);
+    if (minute < 10) {Serial.print("0"); Serial.print(minute); } else Serial.print(minute);
     Serial.print(":");
-    if (second < 10) {
-      Serial.print("0");
-      Serial.print(second);
-    } else Serial.print(second);
+    if (second < 10) {Serial.print("0"); Serial.print(second); } else Serial.print(second);
     Serial.println(" ");
 
     year = RTC.getYear();
@@ -448,21 +607,20 @@ void loop()
     Serial.print("RTC Date = ");
     Serial.print(year); Serial.print(":"); Serial.print(month); Serial.print(":"); Serial.println(day);
     Serial.println();
-
-    rawBat = analogReadEx(myBat, 40000); // set sampling time to 40 milliseconds
-    VBAT = (1270.0f/1000.0f) * 3.30f * ((float)rawBat)/4095.0f;
-    Serial.print("VBAT = "); Serial.println(VBAT, 2); 
-
-    VDDA = STM32L0.getVREF();
-    STM32L0Temp = STM32L0.getTemperature();
-
-    Serial.print("VDDA = "); Serial.println(VDDA, 2);
-    Serial.print("STM32L0 MCU Temperature = "); Serial.println(STM32L0Temp, 2);
-
-      if(count > 60)  // send data to flash and LoRa periodically
-      {
-      
-    // Send some data to the SPI flash
+    
+/* VDDA = STM32L0.getVDDA();
+  VBUS = STM32L0.getVBUS();
+  VBAT = STM32L0.getVBAT();
+  STM32L0Temp = STM32L0.getTemperature();
+  
+  // Internal STM32L0 functions
+  Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
+  Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
+  if(VBUS ==  1)  Serial.println("USB Connected!"); 
+  Serial.print("STM32L0 MCU Temperature = "); Serial.println(STM32L0Temp, 2);
+  Serial.println(" ");
+*/      
+   // Send some data to the SPI flash
       if (sector_number < 8 && page_number < 0x7FFF) { // 32,768 256-byte pages in a 8 MByte flash
         flashPage[sector_number * 32 + 0]  = (uint32_t(Lat) & 0xFF000000) >> 24;  // latitude in bytes
         flashPage[sector_number * 32 + 1]  = (uint32_t(Lat) & 0x00FF0000) >> 16;
@@ -492,8 +650,8 @@ void loop()
         flashPage[sector_number * 32 + 25] = (uint8_t) (Year - 2000);
         flashPage[sector_number * 32 + 26] = (Alt & 0xFF00) >> 8; // MSB GPS altitude
         flashPage[sector_number * 32 + 27] =  Alt & 0x00FF;       // LSB GPS altitude
-        flashPage[sector_number * 32 + 28] = (rawBat & 0xFF00) >> 8; // battery voltage
-        flashPage[sector_number * 32 + 29] =  rawBat & 0x00FF;
+        flashPage[sector_number * 32 + 28] =  ( (uint16_t (VBAT * 100.f)) & 0xFF00) >> 8;
+        flashPage[sector_number * 32 + 29] =  ( (uint16_t (VBAT * 100.f)) & 0x00FF);
 
         sector_number++;
       }
@@ -511,8 +669,24 @@ void loop()
         Serial.println("Reached last page of SPI flash!"); Serial.println("Data logging stopped!");
       }
 
+     digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH);
+        
+    } // end of alarm section
+    
+ 
+    SPIFlash.powerDown();  // Put SPI flash into power down mode
+    SPI.end();             // End SPI peripheral to save power in STOP mod
+    STM32L0.stop();       // Enter STOP mode and wait for an interrupt
+    SPI.begin();           // When exiting STOP mode, re-enable the SPI peripheral
+   
+}  /* end of loop*/
 
-      // Send some data via LoRaWAN
+
+/* Useful functions */
+
+void callbackLoRaTx(void)
+{     
+     // Send some data via LoRaWAN
       LoRaData[0]  = (uint16_t(temperature_C*100.0) & 0xFF00) >> 8;
       LoRaData[1]  =  uint16_t(temperature_C*100.0) & 0x00FF;
       LoRaData[2] =  (uint16_t(pressure*10.0      ) & 0xFF00) >> 8;   
@@ -523,52 +697,49 @@ void loop()
       LoRaData[7] =   uint16_t( (Long + 123.0)*10000.0 ) & 0x00FF;
       LoRaData[8] =  (uint16_t( (Lat   - 37.0)*10000.0 ) & 0xFF00) >> 8;
       LoRaData[9] =   uint16_t( (Lat   - 37.0)*10000.0 ) & 0x00FF;
-      LoRaData[10] =   uint8_t(VBAT*50.0); // maximum should be 4.2 * 50 = 210
-  
-      if (LoRaWAN.connected())
+      LoRaData[10] =  uint8_t(VBAT*50.0); // maximum should be 4.2 * 50 = 210
+
+    if (!LoRaWAN.busy() && LoRaWAN.joined())
      {
         LoRaWAN.beginPacket(3);
         LoRaWAN.write(LoRaData, sizeof(LoRaData));
         LoRaWAN.endPacket();
      }
-
-     count = 0;
     
-    }
-
-     digitalWrite(myLed, LOW); delay(10); digitalWrite(myLed, HIGH);
-        
-    } // end of alarm section
-    
- 
-//    SPIFlash.powerDown();  // Put SPI flash into power down mode
-//    SPI.end();             // End SPI peripheral to save power in STOP mod
-//    STM32L0.stop();        // Enter STOP mode and wait for an interrupt
-//    SPI.begin();           // When exiting STOP mode, re-enable the SPI peripheral
-   
-}  /* end of loop*/
+}
 
 
-/* Useful functions */
 void myinthandler1()
 {
-  newBMA280Data = true;  
+  newBMA280Data = true; 
+  STM32L0.wakeup(); 
 }
 
 void myinthandler2()
 {
   newBMA280Tap = true;
+  STM32L0.wakeup();
 }
 
 void CAMM8QintHandler()
 {
   ppsFlag = true;
+  STM32L0.wakeup();
 }
 
 void alarmMatch()
 {
   alarmFlag = true;
+  STM32L0.wakeup();
 }
+
+void callbackWakeup(void)
+{
+    GNSS.wakeup();
+    Serial.println("GNSS wakeup!");
+}
+
+
 
 void syncRTC()
 {
@@ -587,5 +758,4 @@ void syncRTC()
   RTC.setMonth(Month);
   RTC.setYear(Year - 2000);
 }
-
 
