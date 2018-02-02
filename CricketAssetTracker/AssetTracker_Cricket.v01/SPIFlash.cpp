@@ -32,8 +32,6 @@ Sketch based on the work of Pete (El Supremo) as follows:
 
 SPIFlash::SPIFlash(uint8_t CSPIN)
 {
-  pinMode(CSPIN, OUTPUT);
-  digitalWrite(CSPIN, HIGH);
   _csPin = CSPIN; 
 }
 
