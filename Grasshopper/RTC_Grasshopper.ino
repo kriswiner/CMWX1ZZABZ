@@ -94,4 +94,5 @@ void loop()
  void alarmMatch()
 {
   alarmFlag = true; // Just set flag when interrupt received, don't try reading data in an interrupt handler
+  STM32L0.wakeup();
 }
