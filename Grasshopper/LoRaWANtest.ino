@@ -12,7 +12,7 @@ void setup( void )
   digitalWrite(myLed, LOW);
   
 /*
- - Asia      AS923
+- Asia       AS923
 - Australia  AU915
 - Europe     EU868
 - India      IN865
@@ -20,10 +20,10 @@ void setup( void )
 - US         US915 (64 + 8 channels)
 */
     LoRaWAN.begin(US915);
-    LoRaWAN.setAdrEnable(false);
+    LoRaWAN.setADR(false);
     LoRaWAN.setDataRate(1);
     LoRaWAN.setTxPower(10);
-    LoRaWAN.setSubBand(2); // for TT 
+    LoRaWAN.setSubBand(2); // for TTN 
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
 }
@@ -32,7 +32,7 @@ void loop( void )
 {
     delay(60000);
 
-    if (LoRaWAN.connected())
+    if (!LoRaWAN.busy() && LoRaWAN.joined())
     {
         LoRaWAN.beginPacket(3);
         LoRaWAN.write(0xef);
