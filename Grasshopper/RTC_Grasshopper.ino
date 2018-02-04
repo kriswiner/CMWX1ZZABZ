@@ -8,8 +8,6 @@
 
 #define myLed 13 // red led
 
-#define SerialDebug true
-
 float VDDA, Temperature;
 uint32_t UID[3] = {0, 0, 0}; 
 
@@ -87,7 +85,9 @@ void loop()
   Serial.println(" ");
     
   digitalWrite(myLed, HIGH); delay(10); digitalWrite(myLed, LOW);
-   
+
+  STM32L0.stop();
+  
   }
 }
 
