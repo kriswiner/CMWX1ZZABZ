@@ -8,11 +8,12 @@
 char buffer[32];
 
 void setup( void ) {
-  Serial1.begin(9600);
+  Serial.begin(9600);
+  while (! Serial); // wait for serial port to connect. Needed for native USB
   LoRaWAN.begin(EU868);
-  Serial1.println("devEUI request");
-  LoRaWAN.getDevEui(buffer,18);
-  Serial1.println(buffer);
+  Serial.println("devEUI request");
+  LoRaWAN.getDevEui(buffer, sizeof(buffer));
+  Serial.println(buffer);
 }
 
 void loop( void ) {
