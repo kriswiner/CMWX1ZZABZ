@@ -38,7 +38,6 @@ uint16_t VEML6040::getRGBWdata(uint16_t * destination)
     {
         rawData[i++] = Wire.read();       // Put read results in the Rx buffer
     }     
-    Wire.endTransmission();
     destination[j] = ((uint16_t) rawData[1] << 8) | rawData[0];
     }
  
