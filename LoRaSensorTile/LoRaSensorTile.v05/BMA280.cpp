@@ -114,12 +114,12 @@ void BMA280::deactivateNoMotionInterrupt()
 
 void BMA280::activateSlopeInterrupt()
 {
-  writeByte(BMA280_ADDRESS,BMA280_INT_EN_0, 0x07);                                // Enable No_Motion interrupt all three axes
+  writeByte(BMA280_ADDRESS,BMA280_INT_EN_0, 0x07);                                // Enable Slope interrupt all three axes
 }
 
 void BMA280::deactivateSlopeInterrupt()
 {
-  writeByte(BMA280_ADDRESS,BMA280_INT_EN_0, 0x00);                                // Disable No_Motion interrupt all three axes
+  writeByte(BMA280_ADDRESS,BMA280_INT_EN_0, 0x00);                                // Disable Slopen interrupt all three axes
 }
 
 
