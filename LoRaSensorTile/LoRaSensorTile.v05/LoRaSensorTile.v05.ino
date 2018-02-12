@@ -298,7 +298,7 @@ void loop() {
    
     if(alarmFlag)  { // update RTC output (serial display) whenever the RTC alarm condition is achieved
        alarmFlag = false;
-
+/*     
     tempCount = BMA280.readBMA280TempData();  // Read the accel chip temperature adc values
     temperature = 0.5f * ((float) tempCount) + 23.0f; // Accel chip temperature in degrees Centigrade
  
@@ -309,7 +309,7 @@ void loop() {
     // Print temperature in degrees Centigrade      
     Serial.print("Accel temperature is ");  Serial.print(temperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C        
     }
-
+*/
     // BME280 Data
     BME280.BME280forced();  // get one data sample, then go back to sleep
     
@@ -380,8 +380,8 @@ void loop() {
     }
     
     // Read RTC
-    Day = RTC.getDay();
-    Month = RTC.getMonth();
+    Day     = RTC.getDay();
+    Month   = RTC.getMonth();
     Year    = RTC.getYear();
     Seconds = RTC.getSeconds();
     Minutes = RTC.getMinutes();
