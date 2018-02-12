@@ -298,8 +298,9 @@ void loop() {
    
     if(alarmFlag)  { // update RTC output (serial display) whenever the RTC alarm condition is achieved
        alarmFlag = false;
-/*     
-    tempCount = BMA280.readBMA280TempData();  // Read the accel chip temperature adc values
+
+/*    
+ *     tempCount = BMA280.readBMA280TempData();  // Read the accel chip temperature adc values
     temperature = 0.5f * ((float) tempCount) + 23.0f; // Accel chip temperature in degrees Centigrade
  
     if(SerialDebug) {
@@ -399,59 +400,52 @@ void loop() {
     Serial.println(" ");
     }
 
-  VDDA = STM32L0.getVDDA();
-  VBUS = STM32L0.getVBUS();
+//  VDDA = STM32L0.getVDDA();
+//  VBUS = STM32L0.getVBUS();
   VBAT = STM32L0.getVBAT();
-  Temperature = STM32L0.getTemperature();
+//  Temperature = STM32L0.getTemperature();
   
   // Internal STM32L0 functions
-  Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
+//  Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
   Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
-  if(VBUS ==  1)  Serial.println("USB Connected!"); 
-  Serial.print("STM32L0 MCU Temperature = "); Serial.println(Temperature, 2);
+//  if(VBUS ==  1)  Serial.println("USB Connected!"); 
+//  Serial.print("STM32L0 MCU Temperature = "); Serial.println(Temperature, 2);
 
     // Highest page number is 0xFFFF = 65535 for 128 Mbit flash
     // store some data to the SPI flash
-    // each page holds 7 sectors of 36 bytes each
-      if(sector_number < 7 && page_number < 0xFFFF) {
-      flashPage[sector_number*36 + 0]  =  tempCount;                     // Accel chip temperature
-      flashPage[sector_number*36 + 1]  = (accelCount[0] & 0xFF00) >> 8;  // MSB x-axis accel
-      flashPage[sector_number*36 + 2]  =  accelCount[0] & 0x00FF;        // LSB x-axis accel
-      flashPage[sector_number*36 + 3]  = (accelCount[1] & 0xFF00) >> 8;  // MSB y-axis accel
-      flashPage[sector_number*36 + 4]  =  accelCount[1] & 0x00FF;        // LSB y-axis accel
-      flashPage[sector_number*36 + 5]  = (accelCount[2] & 0xFF00) >> 8;  // MSB z-axis accel
-      flashPage[sector_number*36 + 6]  =  accelCount[2] & 0x00FF;        // LSB z-axis accel
-      flashPage[sector_number*36 + 7] =  (compTemp & 0xFF000000) >> 24;
-      flashPage[sector_number*36 + 8] =  (compTemp & 0x00FF0000) >> 16;
-      flashPage[sector_number*36 + 9] =  (compTemp & 0x0000FF00) >> 8;
-      flashPage[sector_number*36 + 10] = (compTemp & 0x000000FF);
-      flashPage[sector_number*36 + 11] = (compHumidity & 0xFF000000) >> 24;
-      flashPage[sector_number*36 + 12] = (compHumidity & 0x00FF0000) >> 16;
-      flashPage[sector_number*36 + 13] = (compHumidity & 0x0000FF00) >> 8;
-      flashPage[sector_number*36 + 14] = (compHumidity & 0x000000FF);
-      flashPage[sector_number*36 + 15] = (compPress & 0xFF000000) >> 24;
-      flashPage[sector_number*36 + 16] = (compPress & 0x00FF0000) >> 16;
-      flashPage[sector_number*36 + 17] = (compPress & 0x0000FF00) >> 8;
-      flashPage[sector_number*36 + 18] = (compPress & 0x000000FF);
-      flashPage[sector_number*36 + 19] = Seconds;
-      flashPage[sector_number*36 + 20] = Minutes;
-      flashPage[sector_number*36 + 21] = Hours;
-      flashPage[sector_number*36 + 22] = Day;
-      flashPage[sector_number*36 + 23] = Month;
-      flashPage[sector_number*36 + 24] = Year;
-      flashPage[sector_number*36 + 25] = ( (uint16_t (VBAT * 100.f)) & 0xFF00) >> 8;
-      flashPage[sector_number*36 + 26] = ( (uint16_t (VBAT * 100.f)) & 0x00FF);
-      flashPage[sector_number*36 + 27] = (RGBWData[0] & 0xFF00) >> 8;
-      flashPage[sector_number*36 + 28] = (RGBWData[0] & 0x00FF);
-      flashPage[sector_number*36 + 29] = (RGBWData[1] & 0xFF00) >> 8;
-      flashPage[sector_number*36 + 30] = (RGBWData[1] & 0x00FF);
-      flashPage[sector_number*36 + 31] = (RGBWData[2] & 0xFF00) >> 8;
-      flashPage[sector_number*36 + 32] = (RGBWData[2] & 0x00FF);
-      flashPage[sector_number*36 + 33] = (RGBWData[3] & 0xFF00) >> 8;
-      flashPage[sector_number*36 + 34] = (RGBWData[3] & 0x00FF);
+    // each page holds 9 sectors of 28 bytes each
+      if(sector_number < 9 && page_number < 0xFFFF) {
+      flashPage[sector_number*28 + 0] =  (compTemp & 0xFF000000) >> 24;
+      flashPage[sector_number*28 + 1] =  (compTemp & 0x00FF0000) >> 16;
+      flashPage[sector_number*28 + 2] =  (compTemp & 0x0000FF00) >> 8;
+      flashPage[sector_number*28 + 3] =  (compTemp & 0x000000FF);
+      flashPage[sector_number*28 + 4] =  (compHumidity & 0xFF000000) >> 24;
+      flashPage[sector_number*28 + 5] =  (compHumidity & 0x00FF0000) >> 16;
+      flashPage[sector_number*28 + 6] =  (compHumidity & 0x0000FF00) >> 8;
+      flashPage[sector_number*28 + 7] =  (compHumidity & 0x000000FF);
+      flashPage[sector_number*28 + 8] =  (compPress & 0xFF000000) >> 24;
+      flashPage[sector_number*28 + 9] =  (compPress & 0x00FF0000) >> 16;
+      flashPage[sector_number*28 + 10] = (compPress & 0x0000FF00) >> 8;
+      flashPage[sector_number*28 + 11] = (compPress & 0x000000FF);
+      flashPage[sector_number*28 + 12] = Seconds;
+      flashPage[sector_number*28 + 13] = Minutes;
+      flashPage[sector_number*28 + 14] = Hours;
+      flashPage[sector_number*28 + 15] = Day;
+      flashPage[sector_number*28 + 16] = Month;
+      flashPage[sector_number*28 + 17] = Year;
+      flashPage[sector_number*28 + 18] = ( (uint16_t (VBAT * 100.f)) & 0xFF00) >> 8;
+      flashPage[sector_number*28 + 19] = ( (uint16_t (VBAT * 100.f)) & 0x00FF);
+      flashPage[sector_number*28 + 20] = (RGBWData[0] & 0xFF00) >> 8;
+      flashPage[sector_number*28 + 21] = (RGBWData[0] & 0x00FF);
+      flashPage[sector_number*28 + 22] = (RGBWData[1] & 0xFF00) >> 8;
+      flashPage[sector_number*28 + 23] = (RGBWData[1] & 0x00FF);
+      flashPage[sector_number*28 + 24] = (RGBWData[2] & 0xFF00) >> 8;
+      flashPage[sector_number*28 + 25] = (RGBWData[2] & 0x00FF);
+      flashPage[sector_number*28 + 26] = (RGBWData[3] & 0xFF00) >> 8;
+      flashPage[sector_number*28 + 27] = (RGBWData[3] & 0x00FF);
       sector_number++;
     }
-    else if(sector_number == 7 && page_number < 0xFFFF)
+    else if(sector_number == 9 && page_number < 0xFFFF)
     {
       SPIFlash.powerUp();
       SPIFlash.flash_page_program(flashPage, page_number);
@@ -545,5 +539,4 @@ void myinthandler2()
   STM32L0.wakeup();
   Serial.println("BMA280 is asleep!");
 }
-
 
