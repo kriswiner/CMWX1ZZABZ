@@ -280,7 +280,7 @@ void loop() {
 
 
     if(ActivityOn){ // if ActivityOn flag it true, carry out activity until done condition reached
-       InMotion = false;  // turn in ImMotion flag until next motion event is detected
+       InMotion = false;  // turn off ImMotion flag until next motion event is detected
 
       // Begin activity
       digitalWrite(myLed, LOW); 
