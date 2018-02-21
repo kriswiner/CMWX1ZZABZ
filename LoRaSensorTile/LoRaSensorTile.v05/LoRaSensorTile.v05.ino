@@ -25,13 +25,13 @@
 #include "BMA280.h"
 #include "BME280.h"
 #include "VEML6040.h"
-#include "SPIFlashClass.h"
+#include "SPIFlash.h"
 #include "CayenneLPP.h"
 
 //LoraSensorTileNode2
 const char *appEui = "70B3D57ED00093FB";
-const char *appKey = "81457B0186BF3C67652AA075DD2A0DD3";
-const char *devEui = "373932325c376b09";
+const char *appKey = "D3FC12149485EA7B9A4D8F5B6484830E";
+const char *devEui = "9473730323239372";
 
 CayenneLPP myLPP(64);
 
@@ -61,8 +61,8 @@ char buffer[32];
  */
 uint8_t Posr = P_OSR_01, Hosr = H_OSR_01, Tosr = T_OSR_01, Mode = Sleep, IIRFilter = full, SBy = t_1000ms;     // set pressure amd temperature output data rate
 
-uint32_t rawPress, rawTemp, compHumidity, compTemp, compPress;    // pressure, humidity, and temperature raw count output for BME280
-uint16_t rawHumidity;  // variables to hold raw BME280 humidity value
+int32_t rawPress, rawTemp, compHumidity, compTemp, compPress;    // pressure, humidity, and temperature raw count output for BME280
+int16_t rawHumidity;  // variables to hold raw BME280 humidity value
 float temperature_C, temperature_F, pressure, humidity, altitude; // Scaled output of the BME280
 
 BME280 BME280; // instantiate BME280 class
@@ -84,13 +84,13 @@ VEML6040 VEML6040;
 /* Change these values to set the current initial time */
 
 uint8_t seconds = 0;
-uint8_t minutes = 12;
-uint8_t hours = 10;
+uint8_t minutes = 4;
+uint8_t hours = 9;
 
 /* Change these values to set the current initial date */
 
-uint8_t day = 31;
-uint8_t month = 1;
+uint8_t day = 18;
+uint8_t month = 2;
 uint8_t year = 18;
 
 uint8_t Seconds, Minutes, Hours, Day, Month, Year;
@@ -135,7 +135,7 @@ uint16_t page_number = 0;     // set the page mumber for flash page write
 uint8_t  sector_number = 0;   // set the sector number for sector write
 uint8_t  flashPage[256];      // array to hold the data for flash page write
 
-SPIFlashClass SPIFlash(csPin);
+SPIFlash SPIFlash(csPin);
 
 
 void setup() {
@@ -194,8 +194,7 @@ void setup() {
   delay(1000);                                                       // give some time to read the screen
   BMA280.initBMA280(Ascale, BW, normal_Mode, sleep_dur);             // initialize sensor in normal mode for calibration
   BMA280.fastCompensationBMA280();                                   // quickly estimate offset bias
-  BMA280.initBMA280_MotionManager(Ascale, BW, power_Mode, sleep_dur, // Initialize sensor in desired mode for application
-                                    low_power_Mode, motion_threshold);
+  BMA280.initBMA280_MotionManager(Ascale, BW, power_Mode, sleep_dur, low_power_Mode, motion_threshold); // Initialize sensor in desired mode for application
 
   BME280.resetBME280();                                              // reset BME280 before initilization
   delay(100);
@@ -247,11 +246,11 @@ void setup() {
     LoRaWAN.setADR(false);
     LoRaWAN.setDataRate(1);
     LoRaWAN.setTxPower(10);
-    LoRaWAN.setSubBand(1); // 1 for MTCAP and 2 for TTN gateway
+    LoRaWAN.setSubBand(2); // 1 for MTCAP and 2 for TTN gateway
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
 
-    LoRaTimer.start(callbackLoRaTx,  60000, 360000);  // 6 minute period, 1 minute delay
+    LoRaTimer.start(callbackLoRaTx,  60000, 300000);  // 5 minute period, 1 minute delay
 
     NoMotionActivityTimer.start(callbackNoMotionActivity, 100000, 600000);   //  low freq (ten minute) timer
     InMotionActivityTimer.start(callbackInMotionActivity, 100000,  60000);   // high freq (one minute) timer
@@ -475,7 +474,7 @@ void loop() {
 
 void callbackLoRaTx(void)
 {     
- /*     
+      
       // Send some data via LoRaWAN
       LoRaData[0]  = (uint16_t(temperature_C*100.0) & 0xFF00) >> 8;
       LoRaData[1]  =  uint16_t(temperature_C*100.0) & 0x00FF;
@@ -486,14 +485,14 @@ void callbackLoRaTx(void)
       LoRaData[6] =  ( RGBWData[1]  & 0xFF00) >> 8;
       LoRaData[7] =    RGBWData[1]  & 0x00FF;
       LoRaData[8] =   uint8_t(VBAT*50.0); // maximum should be 4.2 * 50 = 210
-  */
+  
 
     if (!LoRaWAN.busy() && LoRaWAN.joined())
      {
-/*      LoRaWAN.beginPacket(3);
+      LoRaWAN.beginPacket(3);
         LoRaWAN.write(LoRaData, sizeof(LoRaData));
         LoRaWAN.endPacket();
-*/
+/*
         myLPP.reset();
         myLPP.addTemperature(1, temperature_C);
         myLPP.addRelativeHumidity(2, humidity);
@@ -501,7 +500,8 @@ void callbackLoRaTx(void)
         myLPP.addLuminosity(4, ambientLight);
         LoRaWAN.sendPacket(myLPP.getBuffer(), myLPP.getSize());
      }
-    
+    */
+     }
 }
 
 void callbackNoMotionActivity(void)
@@ -539,4 +539,5 @@ void myinthandler2()
   STM32L0.wakeup();
   Serial.println("BMA280 is asleep!");
 }
+
 
