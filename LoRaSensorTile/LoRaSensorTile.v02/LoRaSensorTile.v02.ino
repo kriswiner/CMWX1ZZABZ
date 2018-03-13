@@ -49,8 +49,8 @@ uint16_t count = 0;
  */
 uint8_t Posr = P_OSR_01, Hosr = H_OSR_01, Tosr = T_OSR_01, Mode = Sleep, IIRFilter = full, SBy = t_1000ms;     // set pressure amd temperature output data rate
 
-uint32_t rawPress, rawTemp, compHumidity, compTemp, compPress;   // pressure, humidity, and temperature raw count output for BME280
-uint16_t rawHumidity;  // variables to hold raw BME280 humidity value
+int32_t rawPress, rawTemp, rawHumidity, compTemp;   // pressure, humidity, and temperature raw count output for BME280
+uint32_t compHumidity, compPress;                   // variables to hold compensated BME280 humidity and pressure values
 float temperature_C, temperature_F, pressure, humidity, altitude; // Scaled output of the BME280
 
 BME280 BME280; // instantiate BME280 class
