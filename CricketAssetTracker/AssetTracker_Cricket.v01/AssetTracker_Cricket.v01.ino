@@ -21,15 +21,10 @@
 #include "BME280.h"
 #include "SPIFlash.h"
 
-// Cricket Asset Tracker cricketnode1
+// Cricket Asset Tracker  
 const char *appEui = "70B3D57ED000964D";
 const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
 const char *devEui = "9473730323239372";
-
-// Barry's location device
-//const char *appEui = "70B3D57ED0009B8D";
-//const char *appKey = "3C6070B351DE402FF646355C3C33DF4C";
-//const char *devEui = "0087E88E3AFF5D77";
 
 // Cricket pin assignments
 #define myLed   10 // blue led 
