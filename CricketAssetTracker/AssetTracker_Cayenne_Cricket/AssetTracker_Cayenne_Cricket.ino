@@ -22,21 +22,10 @@
 #include "SPIFlash.h"
 #include "CayenneLPP.h"
 
-// Cricket Asset Tracker cricketnode1
-//const char *appEui = "70B3D57ED000964D";
-//const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
-//const char *devEui = "9473730323239372";
-
 // Cricket Asset Tracker productioncricket1
 const char *appEui = "70B3D57ED000964D";
 const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
 const char *devEui = "373932325f376809";
-
-// Barry's location device
-//const char *appEui = "70B3D57ED000B0D9";
-//const char *appKey = "BD789D78319DAB677B79D7834A06977E";
-//const char *devEui = "373932325c376909";
-
 
 CayenneLPP myLPP(64);
 
@@ -636,11 +625,11 @@ void loop()
         flashPage[sector_number * 32 + 17] = (compPress & 0x00FF0000) >> 16;
         flashPage[sector_number * 32 + 18] = (compPress & 0x0000FF00) >> 8;
         flashPage[sector_number * 32 + 19] = (compPress & 0x000000FF);
-        flashPage[sector_number * 32 + 20] = second;
-        flashPage[sector_number * 32 + 21] = minute;
-        flashPage[sector_number * 32 + 22] = hour;
-        flashPage[sector_number * 32 + 23] = day;
-        flashPage[sector_number * 32 + 24] = month;
+        flashPage[sector_number * 32 + 20] =  second;
+        flashPage[sector_number * 32 + 21] =  minute;
+        flashPage[sector_number * 32 + 22] =  hour;
+        flashPage[sector_number * 32 + 23] =  day;
+        flashPage[sector_number * 32 + 24] =  month;
         flashPage[sector_number * 32 + 25] = (uint8_t) (year - 2000);
         flashPage[sector_number * 32 + 26] =  ( (uint16_t (Alt * 10.0f)) & 0xFF00) >> 8;  // MSB GPS altitude
         flashPage[sector_number * 32 + 27] =  ( (uint16_t (Alt * 10.0f)) & 0x00FF);       // LSB GPS altitude
@@ -663,7 +652,7 @@ void loop()
         Serial.println("Reached last page of SPI flash!"); Serial.println("Data logging stopped!");
       }
 
-     digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH);
+     digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // flash blue led for 1 millisecond
         
     } // end of alarm section
     
@@ -699,6 +688,7 @@ void callbackLoRaTx(void)
 //        LoRaWAN.write(LoRaData, sizeof(LoRaData));
 //        LoRaWAN.endPacket();
 
+        // format LoraWAN data for CayenneLPP (www.mydevices.com) dashboard
         myLPP.reset();
         myLPP.addTemperature(1, temperature_C);
         myLPP.addRelativeHumidity(2, humidity);
