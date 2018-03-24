@@ -2,4 +2,4 @@ Cricket is a 23 mm x 46 mm CMWX1ZZABZ-hosted asset tracker using the concurrent 
 
 ![Cricket](https://user-images.githubusercontent.com/6698410/34909788-8f515fe0-f85c-11e7-8de5-30879457ddd1.jpg)
 
-Cricket will be for sale at Tindie in the Spring.
+Cricket is for sale at [Tindie](https://www.tindie.com/products/TleraCorp/cricket-lorawangnss-asset-tracker/).
