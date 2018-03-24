@@ -56,6 +56,7 @@ void SPIFlash::getChipID()
   Serial.print(id[0], HEX); Serial.print(" "); Serial.print(id[1], HEX);  Serial.print(" ");  Serial.println(id[2], HEX); 
 
   Serial.println("Winbond  W25Q80BLUX1G   Chip ID = 0xEF, 0x40, 0x14, 0x0");
+  Serial.println("Macronix  MX25R6435F    Chip ID = 0xC2, 0x28, 0x17, 0x0");
   Serial.println("Macronix MX25L12835FZNI Chip ID = 0xC2, 0x20, 0x18, 0xC2");
   Serial.println("Spansion S25FL127S      Chip ID = 0x01, 0x20, 0x18, 0x4D");
   Serial.println(" ");
