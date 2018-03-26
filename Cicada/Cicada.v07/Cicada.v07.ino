@@ -37,8 +37,6 @@ CayenneLPP myLPP(64);
 
 #define SerialDebug true      // set to true to get Serial output for debugging
 #define myLed     10          // blue led on Cicada
-#define VbatMon   A1
-#define VbatCtl   24
 
 uint8_t LoRaData[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -154,12 +152,6 @@ void setup() {
   // Configure led
   pinMode(myLed, OUTPUT);
   digitalWrite(myLed, LOW); // start with led on
-
-  pinMode(VbatMon, INPUT);    // ADC for reading battery voltage
-  analogReadResolution(12);   // use 12-bit ADC
-  
-  pinMode(VbatCtl, OUTPUT);
-  digitalWrite(VbatCtl, LOW); // disable battery voltage monitor circuit by default
  
   Wire.begin(); // set master mode 
   Wire.setClock(400000); // I2C frequency at 400 kHz  
@@ -306,20 +298,14 @@ void loop() {
     if(alarmFlag)  { // update RTC output (serial display) whenever the RTC alarm condition is achieved
        alarmFlag = false;
 
+    // Internal STM32L0 functions
     VDDA = STM32L0.getVDDA();
     VBUS = STM32L0.getVBUS();
-//    VBAT = STM32L0.getVBAT();
-
-    digitalWrite( VbatCtl, HIGH ); // Enable battery voltage monitor control pin
-    delay(1);
-    VBAT = 1.27f * 3.30f * ((float) analogRead(VbatMon)) / 4096.0f;
-    digitalWrite( VbatCtl, LOW ); // Disable battery voltage monitor control pin
-    Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
-
+    VBAT = STM32L0.getVBAT();
     Temperature = STM32L0.getTemperature();
-  
-    // Internal STM32L0 functions
+ 
     Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
+    Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
     if(VBUS ==  1)  Serial.println("USB Connected!"); 
 
     BMA280.readBMA280AccelData(accelCount); // get 14-bit signed accel data
