@@ -78,7 +78,7 @@
 
 #define BMA280_ADDRESS  0x18  // if ADO is 0 (default)
 
-#define AFS_2G  0x02
+#define AFS_2G  0x03
 #define AFS_4G  0x05
 #define AFS_8G  0x08
 #define AFS_16G 0x0C
