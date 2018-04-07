@@ -22,21 +22,10 @@
 #include "SPIFlash.h"
 #include "CayenneLPP.h"
 
-// Cricket Asset Tracker cricketnode1
-//const char *appEui = "70B3D57ED000964D";
-//const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
-//const char *devEui = "9473730323239372";
-
 // Cricket Asset Tracker productioncricket1
 const char *appEui = "70B3D57ED000964D";
 const char *appKey = "7DE66B18F7105B19A1427AFEB2514597";
 const char *devEui = "373932325f376809";
-
-// Barry's location device
-//const char *appEui = "70B3D57ED000B0D9";
-//const char *appKey = "BD789D78319DAB677B79D7834A06977E";
-//const char *devEui = "373932325c376909";
-
 
 CayenneLPP myLPP(64);
 
