@@ -8,6 +8,7 @@
 
 float VDDA, VBAT, VUSB, Temperature;
 uint32_t UID[3] = {0, 0, 0};
+char buffer[32];
 
 void setup() 
 {
@@ -20,6 +21,8 @@ void setup()
   
   STM32L0.getUID(UID);
   Serial.print("STM32L0 MCU UID = 0x"); Serial.print(UID[0], HEX); Serial.print(UID[1], HEX); Serial.println(UID[2], HEX); 
+  LoRaWAN.getDevEui(buffer, 18);
+  Serial.print("STM32L0 Device EUI = "); Serial.println(buffer); 
   }
 
 void loop() 
