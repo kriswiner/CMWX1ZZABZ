@@ -1,4 +1,4 @@
-Latest Cricket Asset Tracker sketch, variation on previous versions but tuned for highest GNSS position accuracy. 
+Retro Cricket Asset Tracker sketch, variation on previous versions but tuned for highest GNSS position accuracy. 
 
 Typical usage is read and log sensor data at 1 minute intervals, get GNSS fix every two hours but every minute when motion is detected and keep tracking until EPHE (estimated horizontal position error ) is less than 10 meter, and update all data via LoRaWAN every ten minutes.
 
