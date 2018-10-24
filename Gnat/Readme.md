@@ -2,6 +2,7 @@ Ultra-low power asset tracker consisting of CMWX1ZZABZ SX1276 LoRa radio and STM
 MAX M8Q concurrent GNSS module, BMA400 accelerometer for wake-on-motion/sleep-on-no-motion functionality. 
 
 ![GnatTop](https://user-images.githubusercontent.com/6698410/47467809-f637d100-d7ac-11e8-96e4-18dce376081b.jpg)
+![GnatBottom](https://user-images.githubusercontent.com/6698410/47467808-f506a400-d7ac-11e8-9fa0-d7acf583e157.jpg)
 
 Molex PicoBlade connector exposes 3V3/GND/SDA/SCL as well as two digital pins (SWD/UART) and two analog pins for connecting daughter boards. 
 
@@ -17,4 +18,6 @@ Gnat is wired to support LoRa (FSK, GFSK, LoRa radio), LoRaWAN, and SigFox.
 External whip (LoRa) and active patch (GNSS) antennas are required.
 
 Board is intended to be powered by a 1S 3.7 V LiPo battery but any source between 3.3 and 5.5 V will do. 
-LiSO2Cl batteries are ideal for long-term deployement.
+LiSO2Cl batteries are ideal for long-term deployment.
+
+Programmable via the USB connector using the Arduino IDE, of course!
