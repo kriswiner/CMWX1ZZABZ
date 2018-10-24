@@ -1,6 +1,8 @@
 Ultra-low power asset tracker consisting of CMWX1ZZABZ SX1276 LoRa radio and STM32L082 host MCU, 
 MAX M8Q concurrent GNSS module, BMA400 accelerometer for wake-on-motion/sleep-on-no-motion functionality. 
 
+![GnatTop](https://user-images.githubusercontent.com/6698410/47467809-f637d100-d7ac-11e8-96e4-18dce376081b.jpg)
+
 Molex PicoBlade connector exposes 3V3/GND/SDA/SCL as well as two digital pins (SWD/UART) and two analog pins for connecting daughter boards. 
 
 Total sleep current is ~2.5 uA with BMA400 motion watchdog continuously monitoring state of motion. 
