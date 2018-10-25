@@ -1,4 +1,4 @@
-Ultra-low power 20 mm x 20 mm asset tracker consisting of CMWX1ZABZ SX1276 LoRa radio and STM32L082 host MCU, 
+Ultra-low power 20 mm x 20 mm asset tracker consisting of CMWX1ZABZ (SX1276 LoRa radio and STM32L082 host MCU), 
 MAX M8Q concurrent GNSS module, BMA400 accelerometer for wake-on-motion/sleep-on-no-motion functionality. 
 
 ![GnatTop](https://user-images.githubusercontent.com/6698410/47467809-f637d100-d7ac-11e8-96e4-18dce376081b.jpg)
