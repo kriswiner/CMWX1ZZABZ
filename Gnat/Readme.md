@@ -10,7 +10,7 @@ Total sleep current is ~2.5 uA with BMA400 motion watchdog continuously monitori
 Total current with LoRaWAN updated every 10 minutes and GNSS updated every two hours is < 250 uA.
 
 Full power control on the MAX M8Q with GPIO-enabled VDD through a dedicated 3.0 V LDO and a separate GPIO-enabled RTC backup. MAX M8Q may be
-powered down with RTC backup to allow hot start fixes every four hours (ephemeris need updating every four hours) or less. 
+powered down with RTC backup to allow hot start fixes every four hours (when ephemeris expires) or less. 
 The MAX M8Q RTC backup can also be powered off with zero current draw for cold fixes at longer-than-4-hour intervals.
 
 Gnat is wired to support LoRa (FSK, GFSK, LoRa radio), LoRaWAN, and SigFox.
