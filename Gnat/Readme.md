@@ -6,7 +6,7 @@ MAX M8Q concurrent GNSS module, BMA400 accelerometer for wake-on-motion/sleep-on
 
 Molex PicoBlade connector exposes 3V3/GND/SDA/SCL as well as two digital pins (SWD/UART) and two analog pins for connecting daughter boards. 
 
-Total sleep current is ~2.5 uA with BMA400 motion watchdog continuously monitoring state of motion. 
+Total sleep current is 2.5 uA with BMA400 motion watchdog continuously monitoring state of motion. 
 Total current with LoRaWAN updated every 10 minutes and GNSS updated every two hours is < 250 uA.
 
 Full power control on the MAX M8Q with GPIO-enabled VDD through a dedicated 3.0 V LDO and a separate GPIO-enabled RTC backup. MAX M8Q may be
