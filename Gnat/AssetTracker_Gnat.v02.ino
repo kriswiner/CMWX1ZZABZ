@@ -52,7 +52,7 @@ char buffer[32];
 
 bool SerialDebug = true;
 
-// CAM M8Q GNSS configuration
+// MAX M8Q GNSS configuration
 #define GNSS_en      5     // enable for GNSS 3.0 V LDO
 #define pps          4     // 1 Hz fix pulse
 #define GNSS_backup A0     // RTC backup for MAX M8Q
@@ -111,7 +111,7 @@ float ax, ay, az;       // variables to hold latest sensor data values
 float offset[3];        // accel bias offsets
 
 // Logic flags to keep track of device states
-bool BMA400_wake_flag = true;
+bool BMA400_wake_flag = false;
 bool BMA400_sleep_flag = false;
 bool BMA400_newData_flag = false;
 bool InMotion = false;
@@ -147,9 +147,6 @@ void setup()
 
   pinMode(pps, INPUT); // select pps as input from MAX M8Q
 
-  pinMode(GNSS_backup, OUTPUT);
-  digitalWrite(GNSS_backup, HIGH); // enable RTC backup voltage on MAX M8Q
-
   /* initialize wire bus */
   Wire.begin(); // set master mode on default pins 14/15
   Wire.setClock(400000); // I2C frequency at 400 kHz  
@@ -165,7 +162,7 @@ void setup()
   GNSS.setConstellation(GNSS.CONSTELLATION_GPS_AND_GLONASS); // choose satellites
   while (GNSS.busy()) { } // wait for begin to complete
 
-//  GNSS.setAntenna(GNSS.ANTENNA_EXTERNAL);  
+  GNSS.setAntenna(GNSS.ANTENNA_EXTERNAL);  
 
   GNSS.enableWakeup();
 
@@ -250,16 +247,16 @@ void setup()
 
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
 
-//    LoRaTimer.start(callbackLoRaTx, 300000, 600000);      //  10 minute period, delayed 5 minutes
+    LoRaTimer.start(callbackLoRaTx, 300000, 600000);      //  10 minute period, delayed 5 minutes
 
-//    NoMotionActivityTimer.start(callbackNoMotionActivity, 100000, 7200000);    // low  freq (two hours) timer
-//    InMotionActivityTimer.start(callbackInMotionActivity, 100000,   60000);    // high freq (one minute) timer
+    NoMotionActivityTimer.start(callbackNoMotionActivity, 100000, 7200000);    // low  freq (two hours) timer
+    InMotionActivityTimer.start(callbackInMotionActivity, 100000,   60000);    // high freq (one minute) timer
 
 // For testing
-    LoRaTimer.start(callbackLoRaTx, 60000, 60000);      //  1 minute period, delayed 1 minutes
+//    LoRaTimer.start(callbackLoRaTx, 60000, 60000);      //  1 minute period, delayed 1 minutes
 
-    NoMotionActivityTimer.start(callbackNoMotionActivity, 0, 60000);        // low  freq (one minute) timer
-    InMotionActivityTimer.start(callbackInMotionActivity, 100000,   60000); // high freq (one minute) timer
+//    NoMotionActivityTimer.start(callbackNoMotionActivity, 0, 360000);        // low  freq (five minute) timer
+//    InMotionActivityTimer.start(callbackInMotionActivity, 100000,   60000);  // high freq (one minute) timer
     
     /* end of setup */
 }
@@ -274,16 +271,13 @@ void loop()
    InMotion = true;          // set motion state latch
    BMA400.activateNoMotionInterrupt();  
    attachInterrupt(BMA400_intPin2, myinthandler2, RISING);  // attach no-motion interrupt for INT2 pin output of BMA400 
-   digitalWrite(myLed, LOW);
   }
 
   if(BMA400_sleep_flag)
   {
    BMA400_sleep_flag = false;            // clear the sleep flag
-   InMotion = false;                     // set motion state latch
    detachInterrupt(BMA400_intPin2);       // Detach the BMA400 "Go to sleep" interrupt so it doesn't spuriously wake the STM32L4
    BMA400.deactivateNoMotionInterrupt(); // disable no-motion interrupt to save power 
-   digitalWrite(myLed, HIGH);
   }/* end of sleep/wake detect */
 
   
@@ -364,7 +358,7 @@ void loop()
       Serial.println();
     
       // Put the CAM M8Q to sleep once 3D fix with sufficient accuracy is obtained
-      if( (myLocation.fixType() != GNSSLocation::TYPE_2D) && (EPE <= 10.0f) && myLocation.fullyResolved())  // 10 is about as low as one should go, 50 is acceptable
+      if( (myLocation.fixType() != GNSSLocation::TYPE_2D) && (EPE <= 30.0f) && myLocation.fullyResolved())  // 10 is about as low as one should go, 50 is acceptable
         {
             if (!isTracking)
                 {
@@ -579,7 +573,7 @@ void loop()
     Serial.print(year); Serial.print(":"); Serial.print(month); Serial.print(":"); Serial.println(day);
     Serial.println();
 
-    digitalWrite(myLed, !digitalRead(myLed)); delay(10); digitalWrite(myLed, !digitalRead(myLed));
+    digitalWrite(myLed, !digitalRead(myLed)); delay(1); digitalWrite(myLed, !digitalRead(myLed));
         
     } // end of alarm section
     
@@ -654,6 +648,7 @@ void myinthandler1()
 void myinthandler2()
 {
   BMA400_sleep_flag = true;
+  STM32L0.wakeup();
   Serial.println("** BMA400 is asleep! **");
 }
 
