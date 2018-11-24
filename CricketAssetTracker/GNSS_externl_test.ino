@@ -136,7 +136,7 @@ void loop( void )
 
          if(myLocation.fixType() != GNSSLocation::TYPE_2D) {
           Serial.println("GNSS go to sleep!");
-          GNSS.sleep(); // once we have a 3D location fix put CAM M8Q to sleep
+          GNSS.suspend(); // once we have a 3D location fix put CAM M8Q to sleep
          }
 
 	    }
@@ -334,7 +334,7 @@ void loop( void )
 
 void callbackWakeup(void)
 {
-    GNSS.wakeup();
+    GNSS.resume();
     Serial.println("wakeup!");
 }  
 
