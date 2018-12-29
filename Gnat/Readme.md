@@ -18,6 +18,6 @@ Gnat is wired to support LoRa (FSK, GFSK, LoRa radio), LoRaWAN, and SigFox.
 External [whip](https://www.mouser.com/ProductDetail/Anaren/66089-0930?qs=pH7abCSN9NM0tHwbfikfEQ%3d%3d) (LoRa) and active [patch](https://www.mouser.com/ProductDetail/Inventek/ACTPAT184-01-IP?qs=sGAEpiMZZMuBTKBKvsBmlN73K%2f2BcYXlCZkEPYT616pzDXusmnq0TA%3d%3d) (GNSS) antennas are required.
 
 Board is intended to be powered by a 1S 3.7 V LiPo battery but any source between 3.6 and 5.5 V will do. 
-[LiSOCl2](http://www.eemb.com/battery/primary-battery.html) batteries are ideal for long-term deployment. A 2600 mAH 3.6 V LiSOCl2 AA-sized battery @ 1 location fix per day will last more than ten years.
+[LiSOCl2](https://www.eemb.com/battery/primary-battery/li-socl2-battery.html) batteries are ideal for long-term deployment. A 2600 mAH 3.6 V LiSOCl2 AA-sized battery @ 1 location fix per day will last more than ten years.
 
 Programmable via the USB connector using the Arduino IDE, of course!
