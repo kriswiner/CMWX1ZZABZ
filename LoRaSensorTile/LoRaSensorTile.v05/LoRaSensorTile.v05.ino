@@ -25,7 +25,7 @@
 #include "BMA280.h"
 #include "BME280.h"
 #include "VEML6040.h"
-#include "SPIFlash.h"
+#include "SPIFlashClass.h"
 #include "CayenneLPP.h"
 
 //LoraSensorTileNode2
