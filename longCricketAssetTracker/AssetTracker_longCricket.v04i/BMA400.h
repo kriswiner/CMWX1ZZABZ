@@ -134,7 +134,6 @@
 #define sleep_Mode       0x00  // define power modes
 #define lowpower_Mode    0x01
 #define normal_Mode      0x02
-#define sleep_Mode       0x03
 
 // define oversampling
 #define osr0             0x00  // lowest power, lowest oversampling, lowest accuracy
