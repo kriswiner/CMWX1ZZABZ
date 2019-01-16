@@ -114,7 +114,7 @@ BME280 BME280; // instantiate BME280 class
  * choices are:
       AFS_2G, AFS_4G, AFS_8G, AFS_16G  
       SR_15_5Hz, SRW_25Hz, SR_50Hz, SR_100Hz, SR_200Hz, SR_400Hz, SR_800Hz 
-      sleep_Mode, lowpower_Mode, normal_Mode, sleep_Mode
+      sleep_Mode, lowpower_Mode, normal_Mode 
       osr0 (lowest power, lowest oversampling,lowest accuracy), osr1, osr2, osr3 (highest power, highest oversampling, highest accuracy)
       acc_filt1 (variable filter), acc_filt2 (fixed 100 Hz filter), acc_filt_lp (fixed 100 Hz filter, 1 Hz bandwidth)
 */ 
