@@ -30,7 +30,7 @@ void loop()
   digitalWrite(myLed, HIGH); // toggle blue led off
   delay(1000);               // wait 1000 milliseconds
   
-  VDDA = STM32L0.getVREF();
+  VDDA = STM32L0.getVDDA();
   Temperature = STM32L0.getTemperature();
 
   Serial.print("VDDA = "); Serial.println(VDDA, 2); 
