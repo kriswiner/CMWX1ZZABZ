@@ -1,7 +1,7 @@
 Indian Ocean sea Turtle (IoT) Tracker
 
 Based on the CMWX1ZZABZ LoRaWAN module (STM32L082 Cortex M0+ MCU + SX1276 LoRa Radio modem) and using UBLOX's MAX M8Q GNSS engine this animal tracker
-embeds two barometers (MS5803-01BA and MS5837-30BA) for underwater depth measurement, a VEML6040 ambient light sensor, and a combination accelerometer/magnetometer 
+embeds two barometers (MS5803-01BA and MS5837-30BA) for underwater depth measurement, a VEML6030 ambient light sensor, and a combination accelerometer/magnetometer 
 (LSM303AGR e-compass) for simple heading mearurements. The LoRaWAN chip/pcb antenna is intended to serve as backup for an external LoRaWAN antenna. 
 The device has an 8 MByte SPI NOR flash memory for data logging, a 500 mA  (STBC08) LiPo battery charger, a dual MOSFET for battery voltage measurement,
 and an indicator led. There is a resistance circuit for an external seawater immersion detector. The device is designed to use very little power with 
