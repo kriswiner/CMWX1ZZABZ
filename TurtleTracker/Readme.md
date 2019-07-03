@@ -9,3 +9,4 @@ components chosen for their low quiescent current; the CMWX1ZZABZ has sleep curr
 power usage can be configured to match the particular conditions/application. 
 
 ![IoT Turtle Tracker top](https://user-images.githubusercontent.com/6698410/60612972-c8b11780-9d7e-11e9-9736-92715d28e852.jpg)
+![IoT Turtle Tracker bottom](https://user-images.githubusercontent.com/6698410/60612987-d23a7f80-9d7e-11e9-9c5e-ad036ecf305e.jpg)
