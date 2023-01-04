@@ -9,6 +9,6 @@ While I don't seriously expect anyone to install one of these devices into a car
 Ultra-low-power, 16 mm x 62 mm asset tracker consisting of CMWX1ZZABZ-078 (SX1276 LoRa radio and STM32L082 host MCU), 
 CAM M8Q concurrent GNSS module, MX25R6435 8 MByte SPI NOR flash memory for data logging, LIS2DW12 accelerometer for wake-on-motion/sleep-on-no-motion functionality, and BME280 for P/T/H environmental sensing. 
 
-Avalable for sale on Tindie soon!
+Avalaible for sale on [Tindie](https://www.tindie.com/products/tleracorp/gascap-loragnss-asset-tracker/)!
 
 Copyright 2022 Tlera Corporation
