@@ -9,7 +9,11 @@ While I don't seriously expect anyone to install one of these devices into a car
 Ultra-low-power, 16 mm x 62 mm asset tracker consisting of CMWX1ZZABZ-078 (SX1276 LoRa radio and STM32L082 host MCU), 
 CAM M8Q concurrent GNSS module, MX25R6435 8 MByte SPI NOR flash memory for data logging, LIS2DW12 accelerometer for wake-on-motion/sleep-on-no-motion functionality, and BME280 for P/T/H environmental sensing. 
 
+Use the Cricket board variant and Thomas Roell's superb [Arduino core](https://github.com/GrumpyOldPizza/ArduinoCore-stm32l0) to program the GasCap via USB and the Arduino IDE.
+
 I use the SPIFlash_Test sketch to erase the flash before data logging. One could also construct a circular buffer and block erase in a FIFO scheme. Simply erasing the whole flash and page writing every 256 bytes starting on page 1 is the simplest way and the one I have been using.
+
+Use the readSPIFlash sketch to decode the logged data into comma-delimited CSV suitable for plotting in a spreadsheet.
 
 Avalaible for sale on [Tindie](https://www.tindie.com/products/tleracorp/gascap-loragnss-asset-tracker/)!
 
