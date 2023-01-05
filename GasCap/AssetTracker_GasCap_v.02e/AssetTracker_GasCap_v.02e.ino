@@ -42,6 +42,7 @@ I2Cdev             i2c_0(&I2C_BUS);   // Instantiate the I2Cdev object and point
 TimerMillis LoRaTimer;                // instantiate LoraWAN timer
 TimerMillis NoMotionActivityTimer;    // instantiate low-frequency timer
 TimerMillis InMotionActivityTimer;    // instantiate high-frequency timer
+TimerMillis DataLoggerTimer;          // instantiate data loggery timer
 
 // Internal MCU and battery voltage monitor definitions
 // GasCap pin assignments
@@ -339,7 +340,8 @@ void setup()
    // Configure timers
     LoRaTimer.start(callbackLoRaTx, 60000, 600000);                            // ten minute period, delayed 1 minute
     NoMotionActivityTimer.start(callbackNoMotionActivity, 0, 3600000);         // low freq (one hour) timer, start right away
-    InMotionActivityTimer.start(callbackInMotionActivity, 600000,  420000);    // high freq (seven minute) timer, ten minute delay
+    InMotionActivityTimer.start(callbackInMotionActivity, 600000,  120000);    // high freq (two minute) timer, ten minute delay
+    DataLoggerTimer.start(callbackDataLogger, 60000, 60000);                   // one minute period, delayed 1 minute
 
     attachInterrupt(LIS2DW12_intPin1, myinthandler1, RISING);  // attach data ready/wake-up interrupt for INT1 pin output of LIS2DW12
     attachInterrupt(LIS2DW12_intPin2, myinthandler2, RISING);  // attach no-motion          interrupt for INT2 pin output of LIS2DW12 
@@ -797,7 +799,7 @@ void loop()
         if(SerialDebug) {Serial.println("Reached last page of SPI flash!"); Serial.println("Data logging stopped!");}
       }
 
-      digitalWrite(myLed, LOW); delay(10); digitalWrite(myLed, HIGH); // blink led when writing a flash page
+      digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // blink led when writing a flash page
           
     } // end of SPI flash logging
     
@@ -830,11 +832,10 @@ void callbackLoRaTx(void)
         LoRaWAN.sendPacket(myLPP.getBuffer(), myLPP.getSize());
     } 
 
-    callbacklogData();  // log the position every time LoRaWAN Tx is sent
 }
 
 
-void callbacklogData(void)
+void callbackDataLogger(void)
 {
     logData = true;
     STM32L0.wakeup();
