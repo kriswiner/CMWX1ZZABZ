@@ -4,7 +4,7 @@ The **GasCap Asset Tracker** is inspired by the GPS position tracker hidden in a
 
 While I don't seriously expect anyone to install one of these devices into a car gas cap, it will fit in some surprisingly tight spaces. And at just 7.1 g w/o battery, it is light enough to enable small animal tracking; at 16 mm x 62 mm, unobtrusive enough to enable bicycle tracking; and at less than $90, inexpensive enough to satisfy the requirements of many position tracking use cases. 
 
-![GasCap.v02e](https://user-images.githubusercontent.com/6698410/201807241-89c09d3f-1754-43cf-bd41-2b313ab30846.jpg)
+![GasCap.v02f][()
 
 Ultra-low-power, 16 mm x 62 mm asset tracker consisting of CMWX1ZZABZ-078 (SX1276 LoRa radio and STM32L082 host MCU), 
 CAM M8Q concurrent GNSS module, MX25R6435 8 MByte SPI NOR flash memory for data logging, LIS2DW12 accelerometer for wake-on-motion/sleep-on-no-motion functionality, and BME280 for P/T/H environmental sensing. 
