@@ -739,7 +739,7 @@ void loop()
 
 
     // Store some data in flashPage array until we have a full 256-byte page
-    uint8_t bps = 36; // bytes per sector such that 256 bytes per page= sectors per page x bps = 7 x 36 = 252 < 256
+    uint8_t bps = 36; // bytes per sector such that 256 bytes per page = sectors per page x bps = 7 x 36 = 252 < 256
     if (sector_number < 7 && page_number < 0x7FFF) { // 32,768 256-byte pages in a 8 MByte flash
         flashPage[sector_number * bps + 0]  =  (latOut & 0xFF000000) >> 24;  // latitude in bytes
         flashPage[sector_number * bps + 1]  =  (latOut & 0x00FF0000) >> 16;
