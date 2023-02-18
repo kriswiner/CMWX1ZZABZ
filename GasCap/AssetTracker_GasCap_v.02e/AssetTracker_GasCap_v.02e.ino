@@ -42,7 +42,7 @@ I2Cdev             i2c_0(&I2C_BUS);   // Instantiate the I2Cdev object and point
 TimerMillis LoRaTimer;                // instantiate LoraWAN timer
 TimerMillis NoMotionActivityTimer;    // instantiate low-frequency timer
 TimerMillis InMotionActivityTimer;    // instantiate high-frequency timer
-TimerMillis DataLoggerTimer;          // instantiate data loggery timer
+TimerMillis DataLoggerTimer;          // instantiate data logger timer
 
 // Internal MCU and battery voltage monitor definitions
 // GasCap pin assignments
