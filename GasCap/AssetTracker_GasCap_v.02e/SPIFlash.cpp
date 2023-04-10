@@ -35,14 +35,12 @@ SPIFlash::SPIFlash(uint8_t CSPIN)
   _csPin = CSPIN;
 }
 
-
 void SPIFlash::init()
 {
   SPI.begin();
   delay(2);
 }
 
- 
 void SPIFlash::getChipID(uint8_t *dest)
 {
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
@@ -55,7 +53,6 @@ void SPIFlash::getChipID(uint8_t *dest)
   SPI.endTransaction();
 }
 
-
 void SPIFlash::powerDown()
 {
   write_pause();
@@ -66,7 +63,6 @@ void SPIFlash::powerDown()
   delayMicroseconds(10);
   SPI.endTransaction();
 }
-
 
 void SPIFlash::powerUp()
 {
@@ -79,11 +75,12 @@ void SPIFlash::powerUp()
   SPI.endTransaction();
 }
 
-
 void SPIFlash::write_pause(void)
 {
-  if(flash_wait_for_write) {
-    while(flash_read_status() & STAT_WIP);
+  if (flash_wait_for_write)
+  {
+    while (flash_read_status() & STAT_WIP)
+      ;
     flash_wait_for_write = 0;
   }
 }
@@ -110,7 +107,8 @@ void SPIFlash::flash_read_id(unsigned char *idt)
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_READ_ID);
-  for(uint16_t i = 0; i < 20; i++) {
+  for (uint16_t i = 0; i < 20; i++)
+  {
     *idt++ = SPI.transfer(0x00);
   }
   digitalWrite(_csPin, HIGH);
@@ -153,7 +151,8 @@ void SPIFlash::flash_hard_reset(void)
   delayMicroseconds(50);
   // Wait for the hard reset to finish
   // Don't use flash_wait_for_write here
-  while(flash_read_status() & STAT_WIP);
+  while (flash_read_status() & STAT_WIP)
+    ;
   // The spec says "the device will take
   // approximately tRST=30 microseconds
   // to reset"
@@ -173,7 +172,8 @@ void SPIFlash::flash_chip_erase(boolean wait)
   digitalWrite(_csPin, HIGH);
   SPI.endTransaction();
   flash_wait_for_write = 1;
-  if(wait)write_pause();
+  if (wait)
+    write_pause();
 }
 
 //=====================================
@@ -281,7 +281,8 @@ void SPIFlash::flash_page_program(unsigned char *wp, int pn)
   SPI.transfer((address >> 8) & 0xFF);
   SPI.transfer(address & 0xFF);
   // Now write 256 bytes to the page
-  for(uint16_t i = 0; i < 256; i++) {
+  for (uint16_t i = 0; i < 256; i++)
+  {
     SPI.transfer(*wp++);
   }
   digitalWrite(_csPin, HIGH);
@@ -306,7 +307,8 @@ void SPIFlash::flash_read_pages(unsigned char *p, int pn, const int n_pages)
   SPI.transfer((address >> 8) & 0xFF);
   SPI.transfer(address & 0xFF);
   // Now read the page's data bytes
-  for(uint16_t i = 0; i < n_pages * 256; i++) {
+  for (uint16_t i = 0; i < n_pages * 256; i++)
+  {
     *rp++ = SPI.transfer(0);
   }
   digitalWrite(_csPin, HIGH);
@@ -334,7 +336,8 @@ void SPIFlash::flash_fast_read_pages(unsigned char *p, int pn, const int n_pages
   // send dummy byte
   SPI.transfer(0);
   // Now read the number of pages required
-  for(uint16_t i = 0; i < n_pages * 256; i++) {
+  for (uint16_t i = 0; i < n_pages * 256; i++)
+  {
     *rp++ = SPI.transfer(0);
   }
   digitalWrite(_csPin, HIGH);

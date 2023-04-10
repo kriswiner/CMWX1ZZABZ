@@ -55,9 +55,7 @@ uint8_t I2Cdev::readByte(uint8_t address, uint8_t subAddress)
   _i2c_bus->requestFrom(address, 1);    // Read one byte from slave register address
   data = _i2c_bus->read();              // Fill Rx buffer with result
   return data;                          // Return data read from slave register
-  
 }
-
 
 /**
  * @fn: readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
@@ -74,10 +72,11 @@ void I2Cdev::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8
   _i2c_bus->endTransmission(false);     // Send the Tx buffer, but send a restart to keep connection alive
   uint8_t i = 0;
   _i2c_bus->requestFrom(address, count); // Read bytes from slave register address
-  while (_i2c_bus->available()) {
-        dest[i++] = _i2c_bus->read(); }   // Put read results in the Rx buffer
+  while (_i2c_bus->available())
+  {
+    dest[i++] = _i2c_bus->read();
+  } // Put read results in the Rx buffer
 }
-
 
 /**
  * @fn: writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data)
@@ -94,7 +93,6 @@ void I2Cdev::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data)
   _i2c_bus->write(data);                // Put data in Tx buffer
   _i2c_bus->endTransmission();          // Send the Tx buffer
 }
-
 
 /**
  * @fn: writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t data)
@@ -124,14 +122,12 @@ void I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t count, uint8_t
   _i2c_bus->endTransmission(); // Send the Tx buffer
 }
 
-
 uint8_t I2Cdev::pollAddress(uint8_t address)
 {
   _i2c_bus->beginTransmission(address);
   uint8_t error = _i2c_bus->endTransmission();
   return error;
 }
-
 
 /**
  * @fn:I2Cscan()

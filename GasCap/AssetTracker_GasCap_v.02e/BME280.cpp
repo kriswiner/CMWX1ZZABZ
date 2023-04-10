@@ -12,14 +12,11 @@
 */
 
 #include "BME280.h"
-#include "I2CDev.h"
-
 
 BME280::BME280(I2Cdev *i2c_bus)
 {
   _i2c_bus = i2c_bus;
 }
-
 
 uint8_t BME280::getChipID()
 {
@@ -32,14 +29,12 @@ void BME280::reset()
   _i2c_bus->writeByte(BME280_ADDRESS, BME280_RESET, 0xB6);
 }
 
-
 int32_t BME280::readTemperature()
 {
   uint8_t rawData[3]; // 20-bit temperature register data stored here
   _i2c_bus->readBytes(BME280_ADDRESS, BME280_TEMP_MSB, 3, &rawData[0]);
   return (uint32_t)(((uint32_t)rawData[0] << 24 | (uint32_t)rawData[1] << 16 | (uint32_t)rawData[2] << 8) >> 12);
 }
-
 
 int32_t BME280::readPressure()
 {
@@ -48,7 +43,6 @@ int32_t BME280::readPressure()
   return (uint32_t)(((uint32_t)rawData[0] << 24 | (uint32_t)rawData[1] << 16 | (uint32_t)rawData[2] << 8) >> 12);
 }
 
-
 int32_t BME280::BME280::readHumidity()
 {
   uint8_t rawData[3]; // 20-bit pressure register data stored here
@@ -56,15 +50,15 @@ int32_t BME280::BME280::readHumidity()
   return (uint32_t)(((uint32_t)rawData[0] << 24 | (uint32_t)rawData[1] << 16)) >> 16;
 }
 
-
 void BME280::forced()
 {
   uint8_t temp = _i2c_bus->readByte(BME280_ADDRESS, BME280_CTRL_MEAS);
   _i2c_bus->writeByte(BME280_ADDRESS, BME280_CTRL_MEAS, temp | Forced);
 
-    while( (_i2c_bus->readByte(BME280_ADDRESS, BME280_STATUS)) & 0x10) { } // wait for conversion byte to clear
+  while ((_i2c_bus->readByte(BME280_ADDRESS, BME280_STATUS)) & 0x10)
+  {
+  } // wait for conversion byte to clear
 }
-
 
 void BME280::init(uint8_t Posr, uint8_t Hosr, uint8_t Tosr, uint8_t Mode, uint8_t IIRFilter, uint8_t SBy)
 {
@@ -138,7 +132,6 @@ void BME280::init(uint8_t Posr, uint8_t Hosr, uint8_t Tosr, uint8_t Mode, uint8_
     */
 }
 
-
 // Returns temperature in DegC, resolution is 0.01 DegC. Output value of
 // “5123” equals 51.23 DegC.
 int32_t BME280::compensate_T(int32_t adc_T)
@@ -150,7 +143,6 @@ int32_t BME280::compensate_T(int32_t adc_T)
   T = (_t_fine * 5 + 128) >> 8;
   return T;
 }
-
 
 // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8
 // fractional bits).
@@ -176,7 +168,6 @@ uint32_t BME280::compensate_P(int32_t adc_P)
   p = ((p + var1 + var2) >> 8) + (((long long)_dig_P7) << 4);
   return (uint32_t)p;
 }
-
 
 // Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22integer and 10fractional bits).
 // Output value of “47445”represents 47445/1024= 46.333%RH

@@ -15,7 +15,7 @@
 #define BME280_h
 
 #include "Arduino.h"
-#include "I2CDev.h"
+#include "I2Cdev.h"
 #include <Wire.h>
 
 /* BME280 registers
@@ -39,7 +39,6 @@
 #define BME280_CALIB26    0xE1
 
 #define BME280_ADDRESS    0x76 // Address of BMP280 altimeter when ADO = 0
-
 
 #define P_OSR_01 0x01
 #define P_OSR_02 0x02
@@ -78,7 +77,6 @@
 #define t_1000ms 0x05
 #define t_10ms   0x06
 #define t_20ms   0x07
-
 
 class BME280
 {

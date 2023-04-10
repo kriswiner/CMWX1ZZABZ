@@ -31,7 +31,8 @@
 
 #include <Wire.h>
 
-class I2Cdev {
+class I2Cdev
+{
 public:
   I2Cdev(TwoWire *);
   ~I2Cdev(); // Class destructor for durable instances
@@ -41,6 +42,7 @@ public:
   void writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t count, uint8_t *dest);
   void I2Cscan();
   uint8_t pollAddress(uint8_t address);
+
 private:
   TwoWire *_i2c_bus; // Class constructor argument
 };

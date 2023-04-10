@@ -73,6 +73,7 @@ public:
   void flash_page_program(unsigned char *wp, int pn);
   void flash_read_pages(unsigned char *p, int pn, const int n_pages);
   void flash_fast_read_pages(unsigned char *p, int pn, const int n_pages);
+
 private:
   uint8_t _csPin;
   unsigned char flash_wait_for_write = 0;

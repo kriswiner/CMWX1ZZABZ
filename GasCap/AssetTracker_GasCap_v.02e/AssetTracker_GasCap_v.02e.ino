@@ -55,7 +55,6 @@ float VDDA, VBAT, VBUS, STM32L0Temp;
 uint32_t UID[3] = {0, 0, 0};
 char buffer[32];
 
-
 // LIS2DW12 definitions
 #define LIS2DW12_intPin1 3  // interrupt1 pin definitions, wake interrupt pin
 #define LIS2DW12_intPin2 A4 // interrupt2 pin definitions, sleep interrupt pin
@@ -86,7 +85,6 @@ bool InMotion = false;
 
 LIS2DW12 LIS2DW12(&i2c_0); // instantiate LIS2DW12 class
 
-
 // BME280 definitions
 /* Specify BME280 configuration
  *  Choices are:
@@ -104,7 +102,6 @@ uint32_t compHumidity, compPress;                                 // variables t
 float temperature_C, temperature_F, pressure, humidity, altitude; // Scaled output of the BME280
 
 BME280 BME280(&i2c_0); // instantiate BME280 class
-
 
 // CAM M8Q GNSS configuration
 #define GNSS_en 5      // enable for GNSS 3.0 V LDO
@@ -143,7 +140,6 @@ static const char *fixQualityString[] = {
     "/SIMULATION",
 };
 
-
 // SPI Flash: 64 MBit (8 MByte) SPI Flash 32,768, 256-byte pages
 #define csPin 25 // SPI Flash chip select pin
 
@@ -155,10 +151,10 @@ volatile bool logData = false;
 
 SPIFlash SPIFlash(csPin);
 
-
-void setup()
+void setup() 
 {
-  if (SerialDebug) {
+  if (SerialDebug) 
+  {
     Serial.begin(115200);
     Serial.println("Serial enabled!");
     delay(5000);
@@ -206,14 +202,16 @@ void setup()
 
   // Read the LIS2DW12 Chip ID register, this is a good test of communication
   byte LIS2DW12_ChipID = LIS2DW12.getChipID();  // Read CHIP_ID register for LIS2DW12
-  if(SerialDebug) {
+  if(SerialDebug)
+  {
     Serial.print("LIS2DW12 "); Serial.print("I AM "); Serial.print(LIS2DW12_ChipID, HEX); Serial.print(" I should be "); Serial.println(0x44, HEX);
     Serial.println(" ");
   }
 
   // Read the WHO_AM_I register of the BME280 this is a good test of communication
   byte BME280_ChipID = BME280.getChipID();  // Read WHO_AM_I register for BME280
-  if(SerialDebug) {
+  if(SerialDebug)
+  {
   Serial.print("BME280 "); Serial.print("I AM "); Serial.print(BME280_ChipID, HEX); Serial.print(" I should be "); Serial.println(0x60, HEX);
   Serial.println(" ");
   }
@@ -228,7 +226,8 @@ void setup()
     delay(100);
 
    LIS2DW12.selfTest(stress); // perform sensor self test
-   if(SerialDebug) {
+   if(SerialDebug)
+   {
     Serial.print("x-axis self test = "); Serial.print(stress[0], 1); Serial.println("mg, should be between 70 and 1500 mg");
     Serial.print("y-axis self test = "); Serial.print(stress[1], 1); Serial.println("mg, should be between 70 and 1500 mg");
     Serial.print("z-axis self test = "); Serial.print(stress[2], 1); Serial.println("mg, should be between 70 and 1500 mg");
@@ -239,10 +238,11 @@ void setup()
 
     aRes = 0.000244f * (1 << fs); // scale resolutions per LSB for the sensor at 14-bit data
 
-   if(SerialDebug) Serial.println("hold flat and motionless for bias calibration");
+    if (SerialDebug) Serial.println("hold flat and motionless for bias calibration");
     delay(5000);
     LIS2DW12.Compensation(fs, odr, mode, lpMode, bw, lowNoise, offset); // quickly estimate offset bias in normal mode
-   if(SerialDebug) {
+   if(SerialDebug)
+   {
     Serial.print("x-axis offset = "); Serial.print(offset[0]*1000.0f, 1); Serial.println(" mg");
     Serial.print("y-axis offset = "); Serial.print(offset[1]*1000.0f, 1); Serial.println(" mg");
     Serial.print("z-axis offset = "); Serial.print(offset[2]*1000.0f, 1); Serial.println(" mg");
@@ -258,12 +258,12 @@ void setup()
 
     BME280.init(Posr, Hosr, Tosr, Mode, IIRFilter, SBy); // Initialize BME280 altimeter
     BME280.forced();                                     // get initial data sample, then go back to sleep
- 
   }
-  else 
-  {
-   if(LIS2DW12_ChipID != 0x44 && SerialDebug) Serial.println(" LIS2DW12 not functioning!");
-   if(BME280_ChipID != 0x60 && SerialDebug) Serial.println(" BME280 not functioning!");
+  else {
+    if (LIS2DW12_ChipID != 0x44 && SerialDebug)
+      Serial.println(" LIS2DW12 not functioning!");
+    if (BME280_ChipID != 0x60 && SerialDebug)
+      Serial.println(" BME280 not functioning!");
   }
 
   pinMode(csPin, OUTPUT); // set SPI chip select as L082 output
@@ -273,13 +273,15 @@ void setup()
   SPIFlash.init();              // start SPI
   SPIFlash.powerUp();           // MX25R6435FZAI defaults to power down state
   SPIFlash.getChipID(flash_id); // Verify SPI flash communication
-  if (flash_id[0] == 0xC2 && flash_id[1] == 0x28 && flash_id[2] == 0x17 && SerialDebug) {
+  if (flash_id[0] == 0xC2 && flash_id[1] == 0x28 && flash_id[2] == 0x17 && SerialDebug)
+  {
     Serial.println(" ");
     Serial.println("Found Macronix MX25R6435FZAI with Chip ID = 0xC2, 0x28, 0x17!");
     Serial.println(" ");
   }
   else {
-    if (SerialDebug) {
+    if (SerialDebug)
+    {
       Serial.println(" ");
       Serial.println("no or unknown SPI flash!");
       Serial.println(" ");
@@ -306,7 +308,8 @@ void setup()
   STM32L0Temp = STM32L0.getTemperature();
 
   // Internal STM32L0 functions
-  if (SerialDebug) {
+  if (SerialDebug)
+  {
     Serial.print("VDDA = "); Serial.print(VDDA, 2); Serial.println(" V");
     Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
     if(VBUS ==  1)  Serial.println("USB Connected!"); 
@@ -349,7 +352,6 @@ void setup()
   LIS2DW12.getStatus(); // read status of interrupts to clear
 } /* end of setup */
 
-
 /*
  * Everything in the main loop is based on interrupts, so that
  * if there has not been an interrupt event the STM32L082 should be in STOP mode
@@ -358,44 +360,44 @@ void setup()
 void loop()
 {
   /* LIS2DW12 wake detect*/
-  if(LIS2DW12_wake_flag)
+  if (LIS2DW12_wake_flag)
   {
     LIS2DW12_wake_flag = false; // clear the wake flag if wake event
 
     InMotion = true; // set motion state latch
-   if(SerialDebug) Serial.println("** LIS2DW12 is awake! **");
+    if (SerialDebug)
+      Serial.println("** LIS2DW12 is awake! **");
 
     LIS2DW12.activateNoMotionInterrupt();
     attachInterrupt(LIS2DW12_intPin2, myinthandler2, RISING); // attach no-motion interrupt for INT2 pin output of LIS2DW12
 
-   digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH);  // toggle blue led when motion detected      
+    digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // toggle blue led when motion detected
   }                            /* end of LIS2DW12 wake detect */
 
-  
   /* LIS2DW12 sleep detect*/ // Not needed for basic wake/GNSS on motion case
-  if(LIS2DW12_sleep_flag)
+  if (LIS2DW12_sleep_flag)
   {
     LIS2DW12_sleep_flag = false; // clear the sleep flag
     InMotion = false;            // set motion state latch
-   if(SerialDebug) Serial.println("** LIS2DW12 is asleep! **");
+    if (SerialDebug)
+      Serial.println("** LIS2DW12 is asleep! **");
 
     detachInterrupt(LIS2DW12_intPin2);      // Detach the LIS2DW12 "Go to sleep" interrupt so it doesn't spuriously wake the STM32L0
     LIS2DW12.deactivateNoMotionInterrupt(); // disable no-motion interrupt to save power
 
-   digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH);  // toggle blue led when no motion detected
+    digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // toggle blue led when no motion detected
   }                            /* end of LIS2DW12 sleep detect */
 
-  
   /*GNSS*/
   if (GNSS.location(myLocation))
   {
-    if (SerialDebug) {
-    Serial.print("LOCATION: ");
-    Serial.print(fixTypeString[myLocation.fixType()]);
+    if (SerialDebug)
+    {
+      Serial.print("LOCATION: "); Serial.print(fixTypeString[myLocation.fixType()]);
     }
 
-  if (myLocation.fixType() != GNSSLocation::TYPE_NONE)
-  {
+    if (myLocation.fixType() != GNSSLocation::TYPE_NONE)
+    {
       Hour = myLocation.hours();
       Minute = myLocation.minutes();
       Second = myLocation.seconds();
@@ -403,7 +405,8 @@ void loop()
       Month = myLocation.month();
       Day = myLocation.day();
 
-      if (SerialDebug) {
+      if (SerialDebug)
+      {
         Serial.print(fixQualityString[myLocation.fixQuality()]);
         Serial.print(" ");
         Serial.print(myLocation.year());
@@ -425,11 +428,17 @@ void loop()
         if (myLocation.millis() <= 99) { Serial.print("0"); }
         Serial.print(myLocation.millis());
       }
-      if (myLocation.leapSeconds() != GNSSLocation::LEAP_SECONDS_UNDEFINED) {
-                if(SerialDebug) Serial.print(" ");
-                if(SerialDebug) Serial.print(myLocation.leapSeconds());
-        if (!myLocation.fullyResolved()) {
-                    if(SerialDebug) Serial.print("D");
+      if (myLocation.leapSeconds() != GNSSLocation::LEAP_SECONDS_UNDEFINED)
+      {
+        if (SerialDebug)
+        {
+          Serial.print(" ");
+          Serial.print(myLocation.leapSeconds());
+        }
+        if (!myLocation.fullyResolved())
+        {
+          if (SerialDebug)
+            Serial.print("D");
         }
       }
 
@@ -441,33 +450,24 @@ void loop()
         myLocation.longitude(longOut);
         Alt = myLocation.altitude();
         EPE = myLocation.ehpe(); // use this as accuracy figure of merit
-        if (SerialDebug) {
-        Serial.print(" LLA=");
-        Serial.print(Lat, 7);
-        Serial.print(",");
-        Serial.print(Long, 7);
-        Serial.print(",");
-        Serial.print(Alt, 3);
-        Serial.print(" EPE=");
-        Serial.print(EPE, 3);
-        Serial.print(",");
-        Serial.print(myLocation.evpe(), 3);
-        Serial.print(" SATELLITES=");
-        Serial.print(myLocation.satellites());
-        Serial.print(" DOP=");
-        Serial.print(myLocation.hdop(), 2);
-        Serial.print(",");
-        Serial.print(myLocation.vdop(), 2);
+        if (SerialDebug)
+        {
+          Serial.print(" LLA="); Serial.print(Lat, 7); Serial.print(",");
+          Serial.print(Long, 7); Serial.print(","); Serial.print(Alt, 3);
+          Serial.print(" EPE="); Serial.print(EPE, 3); Serial.print(","); Serial.print(myLocation.evpe(), 3);
+          Serial.print(" SATELLITES="); Serial.print(myLocation.satellites());
+          Serial.print(" DOP="); Serial.print(myLocation.hdop(), 2); Serial.print(","); Serial.print(myLocation.vdop(), 2);
           Serial.println();
         }
         // Put the CAM M8Q to sleep once 3D fix with sufficient accuracy is obtained
-        if( (myLocation.fixType() != GNSSLocation::TYPE_2D) && (EPE <= 50.0f) && myLocation.fullyResolved())  // 10 is about as low as one should go, 50 is acceptable
-        {
-            if (!isTracking)
-                {
+        if ((myLocation.fixType() != GNSSLocation::TYPE_2D) && (EPE <= 50.0f) && myLocation.fullyResolved())
+        { // 10 is about as low as one should go, 50 is acceptable 
+          if (!isTracking)
+          {
             isTracking = true;
 
-                    if(SerialDebug) Serial.println("***GNSS go to sleep!***");
+            if (SerialDebug)
+              Serial.println("***GNSS go to sleep!***");
             GNSS.suspend();   // once we have a good 3D location fix put CAM M8Q to sleep
             callbackLoRaTx(); // update dashboard/backend via LoRaWAN
           }
@@ -475,103 +475,124 @@ void loop()
       }
     }
 
- if(SerialDebug) Serial.println();
+    if (SerialDebug)
+      Serial.println();
 
   } /* end of GNSS Location handling */
 
-    if (GNSS.satellites(mySatellites))
+  if (GNSS.satellites(mySatellites))
+  {
+    if (SerialDebug)
     {
-
-    if (SerialDebug) {
       Serial.print("SATELLITES: ");
-      Serial.print(mySatellites.count());
-      Serial.println();
+      Serial.println(mySatellites.count());
     }
 
     for (unsigned int index = 0; index < mySatellites.count(); index++)
     {
       unsigned int svid = mySatellites.svid(index);
 
-  if ((svid >= 1) && (svid <= 32))
-  {
-      if(SerialDebug) Serial.print("    ");
+      if ((svid >= 1) && (svid <= 32))
+      {
+        if (SerialDebug)
+          Serial.print("    ");
 
-      if (svid <= 9)
-      {
-    if(SerialDebug) Serial.print("  G");
-    if(SerialDebug) Serial.print(svid);
+        if (svid <= 9)
+        {
+          if (SerialDebug)
+            Serial.print("  G");
+          if (SerialDebug)
+            Serial.print(svid);
         }
-      else
-      {
-    if(SerialDebug) Serial.print(" G");
-    if(SerialDebug) Serial.print(svid);
+        else
+        {
+          if (SerialDebug)
+            Serial.print(" G");
+          if (SerialDebug)
+            Serial.print(svid);
         }
       }
-  else if ((svid >= 65) && (svid <= 96))
-  {
-      if(SerialDebug) Serial.print("    ");
+      else if ((svid >= 65) && (svid <= 96))
+      {
+        if (SerialDebug)
+          Serial.print("    ");
 
-      if ((svid - 64) <= 9)
-      {
-    if(SerialDebug) Serial.print("  R");
-    if(SerialDebug) Serial.print(svid - 64);
+        if ((svid - 64) <= 9)
+        {
+          if (SerialDebug)
+            Serial.print("  R");
+          if (SerialDebug)
+            Serial.print(svid - 64);
         }
-      else
-      {
-    if(SerialDebug) Serial.print(" R");
-    if(SerialDebug) Serial.print(svid - 64);
+        else
+        {
+          if (SerialDebug)
+            Serial.print(" R");
+          if (SerialDebug)
+            Serial.print(svid - 64);
         }
       }
-  else if ((svid >= 120) && (svid <= 158))
-  {
-        if (SerialDebug) {
+      else if ((svid >= 120) && (svid <= 158))
+      {
+        if (SerialDebug)
+        {
           Serial.print("    ");
           Serial.print("S");
           Serial.print(svid);
         }
       }
-  else if ((svid >= 173) && (svid <= 182))
-  {
-        if (SerialDebug) {
+      else if ((svid >= 173) && (svid <= 182))
+      {
+        if (SerialDebug)
+        {
           Serial.print("    ");
           Serial.print("  I");
           Serial.print(svid - 172);
         }
       }
-  else if ((svid >= 193) && (svid <= 197))
-  {
-        if (SerialDebug) {
+      else if ((svid >= 193) && (svid <= 197))
+      {
+        if (SerialDebug)
+        {
           Serial.print("    ");
           Serial.print("  Q");
           Serial.print(svid - 192);
         }
       }
-  else if ((svid >= 211) && (svid <= 246))
-  {
-     if(SerialDebug) Serial.print("    ");
-
-      if ((svid - 210) <= 9)
+      else if ((svid >= 211) && (svid <= 246))
       {
-    if(SerialDebug) Serial.print("  E");
-    if(SerialDebug) Serial.print(svid - 210);
+        if (SerialDebug)
+          Serial.print("    ");
+
+        if ((svid - 210) <= 9)
+        {
+          if (SerialDebug)
+            Serial.print("  E");
+          if (SerialDebug)
+            Serial.print(svid - 210);
         }
+        else
+        {
+          if (SerialDebug)
+            Serial.print(" E");
+          if (SerialDebug)
+            Serial.print(svid - 210);
+        }
+      }
+      else if (svid == 255)
+      {
+        if (SerialDebug)
+          Serial.print("    ");
+        if (SerialDebug)
+          Serial.print("R???");
+      }
       else
       {
-    if(SerialDebug) Serial.print(" E");
-    if(SerialDebug) Serial.print(svid - 210);
-        }
-      }
-  else if (svid == 255)
-  {
-      if(SerialDebug) Serial.print("    ");
-      if(SerialDebug) Serial.print("R???");
-      }
-  else
-  {
         continue;
       }
 
-      if (SerialDebug) {
+      if (SerialDebug)
+      {
         Serial.print(": SNR=");
         Serial.print(mySatellites.snr(index));
         Serial.print(", ELEVATION=");
@@ -580,51 +601,59 @@ void loop()
         Serial.print(mySatellites.azimuth(index));
       }
 
-      if (mySatellites.unhealthy(index)) {
-      if(SerialDebug) Serial.print(", UNHEALTHY");
+      if (mySatellites.unhealthy(index))
+      {
+        if (SerialDebug) Serial.print(", UNHEALTHY");
       }
 
-      if (mySatellites.almanac(index)) {
-      if(SerialDebug) Serial.print(", ALMANAC");
+      if (mySatellites.almanac(index))
+      {
+        if (SerialDebug) Serial.print(", ALMANAC");
       }
 
-      if (mySatellites.ephemeris(index)) {
-      if(SerialDebug) Serial.print(", EPHEMERIS");
+      if (mySatellites.ephemeris(index))
+      {
+        if (SerialDebug) Serial.print(", EPHEMERIS");
       }
 
-      if (mySatellites.autonomous(index)) {
-      if(SerialDebug) Serial.print(", AUTONOMOUS");
+      if (mySatellites.autonomous(index))
+      {
+        if (SerialDebug) Serial.print(", AUTONOMOUS");
       }
 
-      if (mySatellites.correction(index)) {
-      if(SerialDebug) Serial.print(", CORRECTION");
+      if (mySatellites.correction(index))
+      {
+        if (SerialDebug)
+          Serial.print(", CORRECTION");
       }
 
-      if (mySatellites.acquired(index)) {
-      if(SerialDebug) Serial.print(", ACQUIRED");
+      if (mySatellites.acquired(index))
+      {
+        if (SerialDebug) Serial.print(", ACQUIRED");
       }
 
-      if (mySatellites.locked(index)) {
-      if(SerialDebug) Serial.print(", LOCKED");
+      if (mySatellites.locked(index))
+      {
+        if (SerialDebug) Serial.print(", LOCKED");
       }
 
-      if (mySatellites.navigating(index)) {
-      if(SerialDebug) Serial.print(", NAVIGATING");
+      if (mySatellites.navigating(index))
+      {
+        if (SerialDebug) Serial.print(", NAVIGATING");
       }
 
-  if(SerialDebug) Serial.println();
+      if (SerialDebug) Serial.println();
     }
 
   } /* end of GNSS Satellites handling */
-
 
   /*RTC*/
   if (alarmFlag) { // update serial output
     alarmFlag = false;
 
     ax = ay = az = 0.0f;
-    if (InMotion) {
-      
+    if (InMotion)
+    {
       LIS2DW12.readAccelData(accelCount); // get 14-bit signed accel data
 
       // Now we'll calculate the accleration value into actual g's
@@ -632,11 +661,12 @@ void loop()
       ay = (float)accelCount[1] * aRes - offset[1];
       az = (float)accelCount[2] * aRes - offset[2];
 
-      if (SerialDebug) {
+      if (SerialDebug)
+      {
         Serial.println(" ");
         Serial.print("ax = "); Serial.print((int)1000 * ax);
         Serial.print(" ay = "); Serial.print((int)1000 * ay);
-        Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
+        Serial.print(" az = "); Serial.print((int)1000 * az); Serial.println(" mg");
         Serial.println(" ");
       }
     }
@@ -645,14 +675,16 @@ void loop()
     digitalWrite(VBAT_en, HIGH);
     VBAT = 1.27f * VDDA * ((float)analogRead(VBAT_sense)) / 4095.0f;
     digitalWrite(VBAT_en, LOW);
-    if (SerialDebug) {
+    if (SerialDebug)
+    {
       Serial.print("VBAT = "); Serial.print(VBAT, 2); Serial.println(" V");
     }
 
     tempCount = LIS2DW12.readTempData();      // Read the accel chip temperature adc values
     temperature = ((float)tempCount) + 25.0f; // 8-bit accel chip temperature in degrees Centigrade
     // Print temperature in degrees Centigrade
-    if (SerialDebug) {
+    if (SerialDebug)
+    {
       Serial.print("Accel temperature is "); Serial.print(temperature, 1); Serial.println(" degrees C"); // Print T values to tenths of s degree C
     }
 
@@ -673,7 +705,8 @@ void loop()
     compHumidity = BME280.compensate_H(rawHumidity);
     humidity = (float)compHumidity / 1024.0f; // Humidity in %RH
 
-    if (SerialDebug) {
+    if (SerialDebug)
+    {
       Serial.println("BME280:");
       Serial.print("Altimeter temperature = ");
       Serial.print(temperature_C, 2);
@@ -700,21 +733,18 @@ void loop()
 
     milliseconds = ((subSeconds >> 17) * 1000 + 16384) / 32768;
 
-    if (SerialDebug) {
+    if (SerialDebug)
+    {
       Serial.print("RTC Time = ");
-      if (hours < 10)   {Serial.print("0");Serial.print(hours); } else Serial.print(hours);
+      if (hours < 10) { Serial.print("0"); } Serial.print(hours);
       Serial.print(":");
-      if (minutes < 10) {Serial.print("0"); Serial.print(minutes); } else Serial.print(minutes);
+      if (minutes < 10) { Serial.print("0"); }
+      Serial.print(minutes);
       Serial.print(":");
-      if (seconds < 10) {Serial.print("0"); Serial.print(seconds); } else Serial.print(seconds);
+      if (seconds < 10) { Serial.print("0"); }
+      Serial.print(seconds);
       Serial.print(".");
-        if (milliseconds <= 9) {
-            Serial.print("0");
-        }
-        if (milliseconds <= 99) {
-            Serial.print("0");
-        }
-      Serial.print(milliseconds);
+      if (milliseconds <= 9) { Serial.print("0"); } if (milliseconds <= 99) { Serial.print("0"); } Serial.print(milliseconds);
       Serial.println(" ");
 
       Serial.print("RTC Date = ");
@@ -726,17 +756,18 @@ void loop()
 
   } // end of RTC alarm section
 
-
   // log data to SPI flash
-  if (logData) {
+  if (logData)
+  {
     logData = false;
 
     RTC.getDate(day, month, year);
     RTC.getTime(hours, minutes, seconds, subSeconds);
-    accelCount[0] = 0; accelCount[1] = 0; accelCount[2] = 0;
-    if(InMotion) {LIS2DW12.readAccelData(accelCount); } // read accel data
+    accelCount[0] = 0;
+    accelCount[1] = 0;
+    accelCount[2] = 0;
+    if (InMotion) { LIS2DW12.readAccelData(accelCount); } // read accel data
     rawTempCount = LIS2DW12.readRawTempData(); // Read the 8-bit accel chip temperature register
-
 
     // Store some data in flashPage array until we have a full 256-byte page
     uint8_t bps = 36; // bytes per sector such that 256 bytes per page = sectors per page x bps = 7 x 36 = 252 < 256
@@ -782,46 +813,43 @@ void loop()
     }
 
     // Once the page is full, write it to the SPI flash
-      if (sector_number == 7 && page_number < 0x7FFF)
-      {
+    if (sector_number == 7 && page_number < 0x7FFF)
+    {
       SPIFlash.powerUp();
       SPIFlash.flash_page_program(flashPage, page_number);
-          if(SerialDebug) {Serial.print("***Wrote flash page: "); Serial.println(page_number);}
-          digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // indicate when flash page is written
+      if (SerialDebug) { Serial.print("***Wrote flash page: "); Serial.println(page_number); }
+      digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // indicate when flash page is written
       sector_number = 0;
       page_number++;
       SPIFlash.powerDown(); // Put SPI flash into power down mode
     }
 
     //  if reached the last page stop logging
-      if(page_number >= 0x7FFF) 
-      {
-        if(SerialDebug) {Serial.println("Reached last page of SPI flash!"); Serial.println("Data logging stopped!");}
+    if (page_number >= 0x7FFF)
+    {
+      if (SerialDebug) { Serial.println("Reached last page of SPI flash!"); Serial.println("Data logging stopped!"); }
     }
 
-      digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // blink led when writing a flash page
+    digitalWrite(myLed, LOW); delay(1); digitalWrite(myLed, HIGH); // blink led when writing a flash page
 
   } // end of SPI flash logging
 
- 
   STM32L0.stop(); // Enter STOP mode and wait for an interrupt
 
-   
 } /* end of loop*/
-
 
 /* Useful functions */
 
 void callbackLoRaTx(void)
 {
-    if (!LoRaWAN.joined()) 
-    {
+  if (!LoRaWAN.joined())
+  {
     LoRaWAN.joinOTAA(appEui, appKey, devEui);
     delay(1000);
   }
 
-    if (!LoRaWAN.busy() && LoRaWAN.joined())
-    {
+  if (!LoRaWAN.busy() && LoRaWAN.joined())
+  {
     myLPP.reset();
     myLPP.addTemperature(1, temperature_C);
     myLPP.addRelativeHumidity(2, humidity);
@@ -831,9 +859,7 @@ void callbackLoRaTx(void)
 
     LoRaWAN.sendPacket(myLPP.getBuffer(), myLPP.getSize());
   }
-
 }
-
 
 void callbackDataLogger(void)
 {
@@ -841,17 +867,15 @@ void callbackDataLogger(void)
   STM32L0.wakeup();
 }
 
-
 void callbackNoMotionActivity(void)
 {
   GNSS.resume();
   isTracking = false;
 }
 
-
 void callbackInMotionActivity(void)
 {
-  if(InMotion)
+  if (InMotion)
   {
     InMotion = false;
     GNSS.resume();
@@ -859,20 +883,17 @@ void callbackInMotionActivity(void)
   }
 }
 
-
 void alarmMatch()
 {
   alarmFlag = true;
   STM32L0.wakeup();
 }
 
-
 void myinthandler1()
 {
   LIS2DW12_wake_flag = true;
   STM32L0.wakeup();
 }
-
 
 void myinthandler2()
 {

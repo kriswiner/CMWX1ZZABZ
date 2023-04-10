@@ -12,13 +12,11 @@
  *
  */
 #include "LIS2DW12.h"
-#include "I2CDev.h"
 
 LIS2DW12::LIS2DW12(I2Cdev *i2c_bus)
 {
   _i2c_bus = i2c_bus;
 }
-
 
 uint8_t LIS2DW12::getChipID()
 {
@@ -32,7 +30,6 @@ uint8_t LIS2DW12::getStatus()
   return c;
 }
 
-
 void LIS2DW12::init(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMode, uint8_t bw, bool lowNoise)
 {
   // Normal mode configuration //
@@ -40,7 +37,8 @@ void LIS2DW12::init(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMode, uint8
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1, odr << 4 | mode << 2 | lpMode);
   // bandwidth bits (6-7), full-scale range bit (4-5)
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4);
-   if(lowNoise)   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4 | 0x04);   // set low noise bit 2        
+  if (lowNoise)
+    _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4 | 0x04); // set low noise bit 2
 
   _aRes = 0.000244f * (1 << fs); // scale resolutions per LSB for the sensor at 14-bit data
 
@@ -67,18 +65,15 @@ void LIS2DW12::init(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMode, uint8
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL_REG7, 0x80 | 0x20);
 }
 
-
 void LIS2DW12::activateNoMotionInterrupt()
 {
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL5_INT2_PAD_CTRL, 0x40); // enable GEN1 (no_Motion) interrupt
 }
 
-
 void LIS2DW12::deactivateNoMotionInterrupt()
 {
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL5_INT2_PAD_CTRL, 0x00); // disable GEN1 (no_Motion) interrupt
 }
-
 
 void LIS2DW12::Compensation(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMode, uint8_t bw, bool lowNoise, float *offset)
 {
@@ -91,18 +86,23 @@ void LIS2DW12::Compensation(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMod
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL5_INT2_PAD_CTRL, 0x00);
   // bandwidth bits (6-7), full-scale range bit (4-5)
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4);
-    if(lowNoise) _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4 | 0x04);   // set low noise bit 2        
+  if (lowNoise)
+    _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL6, bw << 6 | fs << 4 | 0x04); // set low noise bit 2
   // sample rate (bits 4 - 7), power mode (bits 2-3), and low-power mode (bits 0-1)
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1, odr << 4 | mode << 2 | lpMode);
 
   _aRes = 0.000244f * (1 << fs); // scale resolutions per LSB for the sensor
   delay(100);
-    while( !( getStatus() & 0x01) ) { } // wait for data ready bit
+  while (!(getStatus() & 0x01))
+  {
+  }                    // wait for data ready bit
   readAccelData(temp); // read and discard data
 
   for (uint8_t ii = 0; ii < 32; ii++)
   {
-       while( !(getStatus() & 0x01) ) { } // wait for data ready bit
+    while (!(getStatus() & 0x01))
+    {
+    } // wait for data ready bit
     readAccelData(temp);
     sum[0] += (int32_t)temp[0];
     sum[1] += (int32_t)temp[1];
@@ -115,17 +115,17 @@ void LIS2DW12::Compensation(uint8_t fs, uint8_t odr, uint8_t mode, uint8_t lpMod
   offset[0] *= _aRes;
   offset[1] *= _aRes;
   offset[2] *= _aRes;
-     if(offset[2] > +0.5f) offset[2] = offset[2] - 1.0f;
-     if(offset[2] < -0.5f) offset[2] = offset[2] + 1.0f;
+  if (offset[2] > +0.5f)
+    offset[2] = offset[2] - 1.0f;
+  if (offset[2] < -0.5f)
+    offset[2] = offset[2] + 1.0f;
 } /* end of accel calibration */
-
 
 void LIS2DW12::reset()
 {
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL2);
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL2, temp | 0x40); // software reset the LIS2DW12
 }
-
 
 void LIS2DW12::selfTest(float *destination)
 {
@@ -144,12 +144,17 @@ void LIS2DW12::selfTest(float *destination)
 
   float STres = 0.488f; // mg/LSB for 4 g full scale, high performance mode
   delay(100);
-   while( !( getStatus() & 0x01) ) { } // wait for data ready bit
+  while (!(getStatus() & 0x01))
+  {
+  }                    // wait for data ready bit
   readAccelData(temp); // read and discard data
 
   // nominal axes test
-   for (uint8_t ii = 0; ii < 5; ii++){
-    while( !(getStatus() & 0x01) ) { } // wait for data ready bit
+  for (uint8_t ii = 0; ii < 5; ii++)
+  {
+    while (!(getStatus() & 0x01))
+    {
+    } // wait for data ready bit
     readAccelData(temp);
     nomX += temp[0];
     nomY += temp[1];
@@ -159,11 +164,16 @@ void LIS2DW12::selfTest(float *destination)
   // positive axes test
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL3, 0x40); // positive axes
   delay(100);
-   while( !(getStatus() & 0x01) ) { } // wait for data ready bit
+  while (!(getStatus() & 0x01))
+  {
+  }                    // wait for data ready bit
   readAccelData(temp); // read and discard data
 
-   for (uint8_t ii = 0; ii < 5; ii++){
-    while( !(getStatus() & 0x01) ) { } // wait for data ready bit
+  for (uint8_t ii = 0; ii < 5; ii++)
+  {
+    while (!(getStatus() & 0x01))
+    {
+    } // wait for data ready bit
     readAccelData(temp);
     posX += temp[0];
     posY += temp[1];
@@ -179,8 +189,8 @@ void LIS2DW12::selfTest(float *destination)
   /* end of self test*/
 }
 
-
-  void LIS2DW12::readAccelData(int16_t * destination) {
+void LIS2DW12::readAccelData(int16_t *destination)
+{
   uint8_t rawData[6];                                                       // x/y/z accel register data stored here
   _i2c_bus->readBytes(LIS2DW12_ADDRESS, LIS2DW12_OUT_X_L, 6, &rawData[0]);  // Read the 6 raw data registers into data array
   destination[0] = ((int16_t)((int16_t)rawData[1] << 8) | rawData[0]) >> 2; // Turn the MSB and LSB into a signed 14-bit value
@@ -188,45 +198,44 @@ void LIS2DW12::selfTest(float *destination)
   destination[2] = ((int16_t)((int16_t)rawData[5] << 8) | rawData[4]) >> 2;
 }
 
-
-  int16_t LIS2DW12::readTempData() {
+int16_t LIS2DW12::readTempData()
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_OUT_T); // Read the raw data register
   int16_t tmp = (int16_t)(((int16_t)temp << 8) | 0x00) >> 8;           // Turn into signed 8-bit temperature value
   return tmp;
 }
 
-
-  uint8_t LIS2DW12::readRawTempData() {
+uint8_t LIS2DW12::readRawTempData()
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_OUT_T); // Read the raw data register
   return temp;
 }
 
-
-  void LIS2DW12::powerDown() {
+void LIS2DW12::powerDown()
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1); // Read the raw data register
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1, temp & 0x0F);  // set odr to 0 (bits 4 - 7)
 }
 
-
-  void LIS2DW12::powerUp(uint8_t odr) {
+void LIS2DW12::powerUp(uint8_t odr)
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1);    // Read the raw data register
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_CTRL1, temp | odr << 4); // set odr (bits 4 - 7)
 }
 
-
-  uint8_t LIS2DW12::getWakeSource( ) {
+uint8_t LIS2DW12::getWakeSource()
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_WAKE_UP_SRC); // Read wake source register
   return temp;
 }
 
-
-  void LIS2DW12::configureFIFO(uint8_t FIFOMode, uint8_t FIFOThreshold) {
+void LIS2DW12::configureFIFO(uint8_t FIFOMode, uint8_t FIFOThreshold)
+{
   _i2c_bus->writeByte(LIS2DW12_ADDRESS, LIS2DW12_FIFO_CTRL, FIFOMode << 5 | FIFOThreshold);
 }
 
-
-  uint8_t LIS2DW12::FIFOsamples( ) {
+uint8_t LIS2DW12::FIFOsamples()
+{
   uint8_t temp = _i2c_bus->readByte(LIS2DW12_ADDRESS, LIS2DW12_FIFO_SAMPLES); // Read FIFO samples register
   return temp;
 }
-  
