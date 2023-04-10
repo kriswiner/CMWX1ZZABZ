@@ -36,28 +36,28 @@ Sketch based on the work of Pete (El Supremo) as follows:
 #define STAT_WIP 1
 #define STAT_WEL 2
 
-#define CMD_WRITE_STATUS_REG   0x01
-#define CMD_PAGE_PROGRAM       0x02
-#define CMD_READ_DATA          0x03
-#define CMD_WRITE_DISABLE      0x04 
-#define CMD_READ_STATUS_REG    0x05
-#define CMD_WRITE_ENABLE       0x06
-#define CMD_READ_HIGH_SPEED    0x0B 
-#define CMD_SECTOR_ERASE       0x20 
-#define CMD_BLOCK32K_ERASE     0x52 
-#define CMD_RESET_DEVICE       0xF0 
-#define CMD_READ_ID            0x9F
-#define CMD_RELEASE_POWER_DOWN 0xAB 
-#define CMD_POWER_DOWN         0xB9 
-#define CMD_CHIP_ERASE         0xC7
-#define CMD_BLOCK64K_ERASE     0xD8 
+#define CMD_WRITE_STATUS_REG 0x01
+#define CMD_PAGE_PROGRAM 0x02
+#define CMD_READ_DATA 0x03
+#define CMD_WRITE_DISABLE 0x04
+#define CMD_READ_STATUS_REG 0x05
+#define CMD_WRITE_ENABLE 0x06
+#define CMD_READ_HIGH_SPEED 0x0B
+#define CMD_SECTOR_ERASE 0x20
+#define CMD_BLOCK32K_ERASE 0x52
+#define CMD_RESET_DEVICE 0xF0
+#define CMD_READ_ID 0x9F
+#define CMD_RELEASE_POWER_DOWN 0xAB
+#define CMD_POWER_DOWN 0xB9
+#define CMD_CHIP_ERASE 0xC7
+#define CMD_BLOCK64K_ERASE 0xD8
 
 class SPIFlash
 {
-  public: 
+public:
   SPIFlash(uint8_t CSPIN);
   void init();
-  void getChipID(uint8_t * dest);
+  void getChipID(uint8_t *dest);
   void powerDown();
   void powerUp();
   void write_pause(void);
@@ -70,11 +70,12 @@ class SPIFlash
   void flash_erase_pages_sector(int pn);
   void flash_erase_pages_block32k(int pn);
   void flash_erase_pages_block64k(int pn);
-  void flash_page_program(unsigned char *wp,int pn);
-  void flash_read_pages(unsigned char *p,int pn,const int n_pages);
-  void flash_fast_read_pages(unsigned char *p,int pn,const int n_pages);
-  private:
-  uint8_t   _csPin;
+  void flash_page_program(unsigned char *wp, int pn);
+  void flash_read_pages(unsigned char *p, int pn, const int n_pages);
+  void flash_fast_read_pages(unsigned char *p, int pn, const int n_pages);
+
+private:
+  uint8_t _csPin;
   unsigned char flash_wait_for_write = 0;
 };
 

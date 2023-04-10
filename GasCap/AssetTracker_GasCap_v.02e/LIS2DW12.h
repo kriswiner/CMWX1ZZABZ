@@ -16,7 +16,7 @@
 #define LIS2DW12_h
 
 #include "Arduino.h"
-#include "I2CDev.h"
+#include "I2Cdev.h"
 #include <Wire.h>
 
 /* Register Map LIS2DW12
