@@ -32,7 +32,7 @@ Sketch based on the work of Pete (El Supremo) as follows:
 
 SPIFlash::SPIFlash(uint8_t CSPIN)
 {
-  _csPin = CSPIN; 
+  _csPin = CSPIN;
 }
 
 
@@ -43,8 +43,8 @@ void SPIFlash::init()
 }
 
  
-void SPIFlash::getChipID(uint8_t * dest)
-{ 
+void SPIFlash::getChipID(uint8_t *dest)
+{
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(0x9F);
@@ -92,21 +92,21 @@ void SPIFlash::write_pause(void)
 // convert a page number to a 24-bit address
 int SPIFlash::page_to_address(int pn)
 {
-  return(pn << 8);
+  return (pn << 8);
 }
 
 //=====================================
 // convert a 24-bit address to a page number
 int SPIFlash::address_to_page(int addr)
 {
-  return(addr >> 8);
+  return (addr >> 8);
 }
 
 //=====================================
 void SPIFlash::flash_read_id(unsigned char *idt)
 {
   write_pause();
-  //set control register 
+  // set control register
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_READ_ID);
@@ -122,14 +122,14 @@ unsigned char SPIFlash::flash_read_status(void)
 {
   unsigned char c;
 
-// This can't do a write_pause
+  // This can't do a write_pause
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
-  digitalWrite(_csPin, LOW);  
+  digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_READ_STATUS_REG);
   c = SPI.transfer(0x00);
   digitalWrite(_csPin, HIGH);
   SPI.endTransaction();
-  return(c);
+  return (c);
 }
 
 //=====================================
@@ -143,11 +143,11 @@ void SPIFlash::flash_hard_reset(void)
   // but the library does not support suspend
   // mode yet anyway
   write_pause();
-  
+
   // Send Write Enable command
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
-  SPI.transfer(CMD_RESET_DEVICE );
+  SPI.transfer(CMD_RESET_DEVICE);
   digitalWrite(_csPin, HIGH);
   SPI.endTransaction();
   delayMicroseconds(50);
@@ -187,13 +187,13 @@ void SPIFlash::flash_erase_pages_sector(int pn)
 {
   int address;
 
-  write_pause(); 
+  write_pause();
   // Send Write Enable command
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_WRITE_ENABLE);
   digitalWrite(_csPin, HIGH);
-  
+
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_SECTOR_ERASE);
   // Send the 3 byte address
@@ -202,7 +202,7 @@ void SPIFlash::flash_erase_pages_sector(int pn)
   SPI.transfer((address >> 8) & 0xff);
   SPI.transfer(address & 0xff);
   digitalWrite(_csPin, HIGH);
-  SPI.endTransaction();  
+  SPI.endTransaction();
   // Indicate that next I/O must wait for this write to finish
   flash_wait_for_write = 1;
 }
@@ -239,7 +239,7 @@ void SPIFlash::flash_erase_pages_block32k(int pn)
 void SPIFlash::flash_erase_pages_block64k(int pn)
 {
   int address;
-  
+
   write_pause();
   // Send Write Enable command
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
@@ -264,14 +264,14 @@ void SPIFlash::flash_page_program(unsigned char *wp, int pn)
 {
   int address;
 
-  write_pause(); 
+  write_pause();
   // Send Write Enable command
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_WRITE_ENABLE);
   digitalWrite(_csPin, HIGH);
   SPI.endTransaction();
-  
+
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_PAGE_PROGRAM);
@@ -282,7 +282,7 @@ void SPIFlash::flash_page_program(unsigned char *wp, int pn)
   SPI.transfer(address & 0xFF);
   // Now write 256 bytes to the page
   for(uint16_t i = 0; i < 256; i++) {
-  SPI.transfer(*wp++);
+    SPI.transfer(*wp++);
   }
   digitalWrite(_csPin, HIGH);
   SPI.endTransaction();
@@ -291,11 +291,11 @@ void SPIFlash::flash_page_program(unsigned char *wp, int pn)
 }
 
 //=====================================
-void SPIFlash::flash_read_pages(unsigned char *p,int pn,const int n_pages)
+void SPIFlash::flash_read_pages(unsigned char *p, int pn, const int n_pages)
 {
   int address;
   unsigned char *rp = p;
-  
+
   write_pause();
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
@@ -315,14 +315,14 @@ void SPIFlash::flash_read_pages(unsigned char *p,int pn,const int n_pages)
 
 //=====================================
 // Read specified number of pages starting with pn
-void SPIFlash::flash_fast_read_pages(unsigned char *p,int pn,const int n_pages)
+void SPIFlash::flash_fast_read_pages(unsigned char *p, int pn, const int n_pages)
 {
   int address;
   unsigned char *rp = p;
-  
+
   write_pause();
-// The chip doesn't run at the higher clock speed until
-// after the command and address have been sent
+  // The chip doesn't run at the higher clock speed until
+  // after the command and address have been sent
   SPI.beginTransaction(SPISettings(50000000, MSBFIRST, SPI_MODE0));
   digitalWrite(_csPin, LOW);
   SPI.transfer(CMD_READ_HIGH_SPEED);
