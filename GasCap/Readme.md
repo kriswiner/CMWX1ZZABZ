@@ -21,6 +21,6 @@ I measured the following power usage for the first hour of operation with 32 MHz
 
 ![GasCap Power Usage](https://user-images.githubusercontent.com/6698410/239995207-2bb264f2-0468-4393-9bd0-bcd967eb0693.png)
 
-Average power usage for the first 12 GNSS location fixes is 7.32 mA, which means ~0.61 mA per fix. GasCap sleep current with watchdog accelerometer and GNSS backup on is ~17.5 uA. For a more typical one GNSS fix every two hours, average current usage would be ~300 uA.
+Average power usage for the first 12 GNSS location fixes is 7.32 mA, which means <0.61 mA per fix. GasCap sleep current with watchdog accelerometer and GNSS backup on is ~17.5 uA. More typically, the average current usage over several days is less such that with one GNSS fix every two hours, average current usage would be ~250 uA.
 
 Copyright 2022 Tlera Corporation
