@@ -15,6 +15,12 @@ I use the SPIFlash_Test sketch to erase the flash before data logging. One could
 
 Use the readSPIFlash sketch to decode the logged data into comma-delimited CSV suitable for plotting in a spreadsheet.
 
-Avalaible for sale on [Tindie](https://www.tindie.com/products/tleracorp/gascap-loragnss-asset-tracker/)!
+Available for sale on [Tindie](https://www.tindie.com/products/tleracorp/gascap-loragnss-asset-tracker/)!
+
+I measured the following power usage for the first hour of operation with 32 MHz CPU clock, 5 minute GNSS interval and an EPHE GNSS sleep criterion of 40 using the sketch above.
+
+![GasCap Power Usage](https://user-images.githubusercontent.com/6698410/239995207-2bb264f2-0468-4393-9bd0-bcd967eb0693.png)
+
+Average power usage for the first 12 GNSS location fixes is 7.32 mA/12 ~ 0.61 mA per fix.
 
 Copyright 2022 Tlera Corporation
