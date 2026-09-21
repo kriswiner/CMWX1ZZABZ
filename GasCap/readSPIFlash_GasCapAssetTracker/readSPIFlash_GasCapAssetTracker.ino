@@ -31,10 +31,10 @@ Sketch based on the work of Pete (El Supremo) as follows:
 #include "SPIFlash.h"
 
 // Highest page number is 0x7FFF = 32768 for  64 Mbit flash
-uint16_t max_page_number = 0x7FFF;
+const uint32_t max_page_number = 0x7FFF;
 uint8_t bps = 36; // bytes per sector such that 256 bytes per page = sectors per page x bps = 7 x 36 = 252 < 256
 unsigned char flashPage[256];
-uint16_t page_number = 0;
+uint32_t page_number = 0;
 uint8_t sector_number = 0;
 uint8_t buffer[4] = {0, 0, 0, 0};
 
@@ -55,6 +55,25 @@ float aRes = 0.000244f;    // scale resolutions per LSB for the sensor at 14-bit
 
 SPIFlash SPIFlash(csPin);
 
+bool record_is_erased(const unsigned char *record)
+{
+  for (uint8_t i = 0; i < bps; i++)
+  {
+    if (record[i] != 0xFF)
+      return false;
+  }
+  return true;
+}
+
+int32_t read_int32_be(const unsigned char *bytes)
+{
+  uint32_t value = ((uint32_t)bytes[0] << 24) |
+                   ((uint32_t)bytes[1] << 16) |
+                   ((uint32_t)bytes[2] << 8) |
+                   (uint32_t)bytes[3];
+  return (int32_t)value;
+}
+
 void setup(void)
 {
   Serial.begin(115200);
@@ -69,15 +88,17 @@ void setup(void)
   SPIFlash.powerUp();
   SPIFlash.getChipID();
 
-  // read Sensor Tile SPI flash
-  for (page_number = 0; page_number < 10; page_number++)
+  // Read every page in the configured flash address range. Empty sectors are
+  // skipped so erased memory is not exported as sensor records.
+  for (page_number = 0; page_number <= max_page_number; page_number++)
   {
-
-    //  Serial.print("Read Page 0x"); Serial.println(page_number, HEX);
     SPIFlash.flash_read_pages(flashPage, page_number, 1);
 
     for (sector_number = 0; sector_number < 7; sector_number++)
     {
+      unsigned char *record = &flashPage[sector_number * bps];
+      if (record_is_erased(record))
+        continue;
 
       // reconstruct latitude
       buffer[0] = flashPage[sector_number * bps + 0];
@@ -85,7 +106,7 @@ void setup(void)
       buffer[2] = flashPage[sector_number * bps + 2];
       buffer[3] = flashPage[sector_number * bps + 3];
 
-      latitude = (float)((int32_t)(buffer[0] << 24) | (int32_t)(buffer[1] << 16) | (int32_t)(buffer[2] << 8) | (int32_t)buffer[4]);
+      latitude = (float)read_int32_be(buffer);
       latitude /= 10000000.0f;
 
       // reconstruct longitude
@@ -94,7 +115,7 @@ void setup(void)
       buffer[2] = flashPage[sector_number * bps + 6];
       buffer[3] = flashPage[sector_number * bps + 7];
 
-      longitude = (float)((int32_t)(buffer[0] << 24) | (int32_t)(buffer[1] << 16) | (int32_t)(buffer[2] << 8) | (int32_t)buffer[4]);
+      longitude = (float)read_int32_be(buffer);
       longitude /= 10000000.0f;
 
       accelCount[0] = ((int16_t)flashPage[sector_number * bps + 10] << 8) | flashPage[sector_number * bps + 11];
@@ -112,7 +133,7 @@ void setup(void)
       buffer[2] = flashPage[sector_number * bps + 18];
       buffer[3] = flashPage[sector_number * bps + 19];
 
-      temperature_C = (float)((int32_t)(buffer[0] << 24) | (int32_t)(buffer[1] << 16) | (int32_t)(buffer[2] << 8) | (int32_t)buffer[4]);
+      temperature_C = (float)read_int32_be(buffer);
       temperature_C /= 100.0f; // temperature in degree Centigrade
 
       // reconstruct humidity
@@ -121,7 +142,7 @@ void setup(void)
       buffer[2] = flashPage[sector_number * bps + 22];
       buffer[3] = flashPage[sector_number * bps + 23];
 
-      humidity = (float)((int32_t)(buffer[0] << 24) | (int32_t)(buffer[1] << 16) | (int32_t)(buffer[2] << 8) | (int32_t)buffer[4]);
+      humidity = (float)read_int32_be(buffer);
       humidity /= 1024.0f; // humidity on %rH
 
       // reconstruct pressure
@@ -130,7 +151,7 @@ void setup(void)
       buffer[2] = flashPage[sector_number * bps + 26];
       buffer[3] = flashPage[sector_number * bps + 27];
 
-      pressure = (float)((int32_t)(buffer[0] << 24) | (int32_t)(buffer[1] << 16) | (int32_t)(buffer[2] << 8) | (int32_t)buffer[4]);
+      pressure = (float)read_int32_be(buffer);
       pressure /= 25600.0f; // pressure in millibars
 
       second = flashPage[sector_number * bps + 28];
